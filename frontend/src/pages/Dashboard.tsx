@@ -21,7 +21,10 @@ export default function Dashboard() {
 					<Button variant="outline" onClick={() => navigate("/profile")}>
 						Profile
 					</Button>
-					<Button variant="destructive" onClick={handleLogout}>
+					<Button
+						className="text-white"
+						variant="destructive"
+						onClick={handleLogout}>
 						Logout
 					</Button>
 				</div>
