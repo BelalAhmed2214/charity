@@ -6,7 +6,7 @@ use Illuminate\Http\Response;
 
 trait ResponseTrait
 {
-    private function returnSuccess($msg = "", $status = Response::HTTP_OK)
+    public function returnSuccess($msg = "", $status = Response::HTTP_OK)
     {
         return response()->json([
             'result' => true,
@@ -15,6 +15,12 @@ trait ResponseTrait
             'data' => [],
         ], $status);
     }
+    
+    public function returnSuccessMessage($msg = "", $status = Response::HTTP_OK)
+    {
+        return $this->returnSuccess($msg, $status);
+    }
+
     public function returnError($msg, $status = Response::HTTP_NOT_FOUND)
     {
         return response()->json([

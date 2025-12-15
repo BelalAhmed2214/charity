@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
@@ -16,6 +18,8 @@ class UserController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', User::class);
+        
         $users = User::all();
         if ($users->isEmpty()) {
             return $this->returnError("There is no users");
@@ -26,13 +30,11 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $data = $request->only(["name", "email", "phone", "role", "password"]);
-        $user = User::create($data);
-        if (!$user) {
-            return $this->returnError("Failed to create user");
-        }
+        $this->authorize('create', User::class);
+        
+        $user = User::create($request->validated());
         return $this->returnData("user", $user, "User created Successfully", Response::HTTP_CREATED);
     }
 
@@ -45,23 +47,25 @@ class UserController extends Controller
         if (!$user) {
             return $this->returnError("This user not found");
         }
+        
+        $this->authorize('view', $user);
+        
         return $this->returnData("user", $user, "User Data");
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateUserRequest $request, string $id)
     {
         $user = User::find($id);
         if (!$user) {
             return $this->returnError("This user not found");
         }
-        $data = $request->only(['name', 'phone', 'email']);
-        if ($request->filled('password')) {
-            $data['password'] = $request->password;
-        }
-        $user->update($data);
+        
+        $this->authorize('update', $user);
+        
+        $user->update($request->validated());
         return $this->returnData("user", $user, "User updated Successfully");
     }
 
@@ -74,6 +78,9 @@ class UserController extends Controller
         if (!$user) {
             return $this->returnError("This user not found");
         }
+        
+        $this->authorize('delete', $user);
+        
         $user->delete();
         return $this->returnData("user", $user, "User deleted Successfully");
     }
