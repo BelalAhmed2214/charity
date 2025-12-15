@@ -13,6 +13,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
+    
+    // User management (will add authorization policies next)
+    Route::apiResource('users', UserController::class);
 });
 
-Route::apiResource('users', UserController::class);
