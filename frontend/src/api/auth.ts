@@ -38,27 +38,32 @@ export interface UserResponse {
 export const authAPI = {
 	register: async (data: RegisterRequest): Promise<AuthResponse> => {
 		const response = await api.post("/register", data);
-		return response.data;
+		// ResponseTrait wraps data in { result, message, status, data: {...} }
+		return response.data.data;
 	},
 
 	login: async (data: LoginRequest): Promise<AuthResponse> => {
 		const response = await api.post("/login", data);
-		return response.data;
+		// ResponseTrait wraps data in { result, message, status, data: {...} }
+		return response.data.data;
 	},
 
 	logout: async (): Promise<{ message: string }> => {
 		const response = await api.post("/logout");
-		return response.data;
+		// ResponseTrait returns { result, message, status, data: [] }
+		return { message: response.data.message };
 	},
 
 	getUser: async (): Promise<UserResponse> => {
 		const response = await api.get("/user");
-		return response.data;
+		// ResponseTrait wraps data in { result, message, status, user: {...} }
+		return response.data.user;
 	},
 
 	refreshToken: async (): Promise<{ token: string; token_type: string }> => {
 		const response = await api.post("/refresh");
-		return response.data;
+		// ResponseTrait wraps data in { result, message, status, data: {...} }
+		return response.data.data;
 	},
 };
 

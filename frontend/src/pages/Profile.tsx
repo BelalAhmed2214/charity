@@ -81,7 +81,7 @@ export default function Profile() {
 					</Button>
 					<Button
 						variant="destructive"
-						className="flex-1"
+						className="flex-1 text-white"
 						onClick={handleLogout}>
 						Logout
 					</Button>
