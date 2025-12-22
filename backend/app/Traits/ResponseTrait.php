@@ -33,11 +33,10 @@ trait ResponseTrait
     public function returnData($key, $value, $msg = "", $status = Response::HTTP_OK)
     {
         return response()->json([
-            'result' => "true",
+            'result' => true,
             'message' => $msg,
             'status' => $status,
             $key => $value,
-
         ], $status);
     }
 }

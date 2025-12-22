@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\PatientController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes (no authentication required)
@@ -14,7 +15,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
     
-    // User management (will add authorization policies next)
+    // User management
     Route::apiResource('users', UserController::class);
+    
+    // Patient management
+    Route::apiResource('patients', PatientController::class);
 });
 

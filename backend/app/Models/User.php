@@ -30,10 +30,7 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    public function getAuthIdentifierName()
-    {
-        return 'phone';
-    }
+
     public function patients()
     {
         return $this->hasMany(Patient::class);
