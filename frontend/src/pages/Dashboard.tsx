@@ -18,6 +18,9 @@ export default function Dashboard() {
 					<p className="text-gray-600 mt-1">Welcome, {user?.name}</p>
 				</div>
 				<div className="flex gap-3">
+					<Button variant="outline" onClick={() => navigate("/patients")}>
+						Patients
+					</Button>
 					<Button variant="outline" onClick={() => navigate("/profile")}>
 						Profile
 					</Button>

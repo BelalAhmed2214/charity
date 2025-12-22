@@ -15,7 +15,9 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { ApiErrorAlert } from "@/components/ApiErrorAlert";
+import { type ApiError } from "@/types/api";
+import { getFieldErrors } from "@/utils/errors";
 
 const registerSchema = z
 	.object({
@@ -41,10 +43,11 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function Register() {
 	const navigate = useNavigate();
 	const { register: registerUser } = useAuth();
-	const [error, setError] = useState<string>("");
+	const [error, setError] = useState<ApiError | null>(null);
 	const {
 		register,
 		handleSubmit,
+		setError: setFormError,
 		formState: { errors, isSubmitting },
 	} = useForm<RegisterFormValues>({
 		resolver: zodResolver(registerSchema),
@@ -52,7 +55,7 @@ export default function Register() {
 
 	const onSubmit = async (data: RegisterFormValues) => {
 		try {
-			setError("");
+			setError(null);
 			await registerUser(
 				data.name,
 				data.phone,
@@ -60,13 +63,14 @@ export default function Register() {
 				data.email || undefined
 			);
 		} catch (err: unknown) {
-			if (axios.isAxiosError(err)) {
-				const errorMsg =
-					err.response?.data?.message ||
-					err.response?.data?.error ||
-					"Registration failed. Please try again.";
-				setError(errorMsg);
-			}
+			const apiError = err as ApiError;
+			setError(apiError);
+			
+			// Set field-level errors for validation failures
+			const fieldErrors = getFieldErrors(apiError);
+			Object.entries(fieldErrors).forEach(([field, message]) => {
+				setFormError(field as keyof RegisterFormValues, { message });
+			});
 		}
 	};
 
@@ -83,11 +87,7 @@ export default function Register() {
 				</CardHeader>
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<CardContent className="space-y-4">
-						{error && (
-							<div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700">
-								{error}
-							</div>
-						)}
+						<ApiErrorAlert error={error} onDismiss={() => setError(null)} />
 						<div className="space-y-2">
 							<Label htmlFor="name">Full Name</Label>
 							<Input

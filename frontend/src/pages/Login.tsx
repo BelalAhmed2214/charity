@@ -15,7 +15,8 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { ApiErrorAlert } from "@/components/ApiErrorAlert";
+import { type ApiError } from "@/types/api";
 
 const loginSchema = z.object({
 	phone: z.string().min(10, "Phone number must be at least 10 digits"),
@@ -27,7 +28,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function Login() {
 	const navigate = useNavigate();
 	const { login } = useAuth();
-	const [error, setError] = useState<string>("");
+	const [error, setError] = useState<ApiError | null>(null);
 	const {
 		register,
 		handleSubmit,
@@ -38,14 +39,13 @@ export default function Login() {
 
 	const onSubmit = async (data: LoginFormValues) => {
 		try {
-			setError("");
+			setError(null);
 			await login(data.phone, data.password);
 		} catch (err: unknown) {
-			if (axios.isAxiosError(err)) {
-				setError(
-					err.response?.data?.message || "Login failed. Please try again."
-				);
-			}
+			const apiError = err as ApiError;
+			setError(apiError);
+			// Don't set field-level errors for login - security best practice
+			// User shouldn't know which field is wrong
 		}
 	};
 
@@ -62,11 +62,7 @@ export default function Login() {
 				</CardHeader>
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<CardContent className="space-y-4">
-						{error && (
-							<div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700">
-								{error}
-							</div>
-						)}
+						<ApiErrorAlert error={error} onDismiss={() => setError(null)} />
 						<div className="space-y-2">
 							<Label htmlFor="phone">Phone Number</Label>
 							<Input
