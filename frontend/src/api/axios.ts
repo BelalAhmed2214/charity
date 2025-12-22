@@ -1,8 +1,8 @@
 import axios from "axios";
+import { normalizeApiError } from "@/utils/errors";
 
 const api = axios.create({
-	baseURL: "http://localhost:8000/api",
-	withCredentials: true,
+	baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
 	headers: {
 		"Content-Type": "application/json",
 		Accept: "application/json",
@@ -36,6 +36,7 @@ api.interceptors.response.use(
 	async (error) => {
 		const originalRequest = error.config;
 
+		// Handle 401 errors with token refresh
 		if (error.response?.status === 401 && !originalRequest._retry) {
 			if (isRefreshing) {
 				return new Promise((onSuccess, onError) => {
@@ -53,7 +54,7 @@ api.interceptors.response.use(
 
 			try {
 				const response = await axios.post(
-					"http://localhost:8000/api/refresh",
+					`${import.meta.env.VITE_API_URL || "http://localhost:8000/api"}/refresh`,
 					{},
 					{
 						headers: {
@@ -63,7 +64,7 @@ api.interceptors.response.use(
 					}
 				);
 
-				const newToken = response.data.token;
+				const newToken = response.data.data?.token || response.data.token;
 				localStorage.setItem("auth_token", newToken);
 				api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
 				originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
@@ -74,13 +75,14 @@ api.interceptors.response.use(
 				processQueue(refreshError as Error);
 				localStorage.removeItem("auth_token");
 				window.location.href = "/login";
-				return Promise.reject(refreshError);
+				return Promise.reject(normalizeApiError(refreshError));
 			} finally {
 				isRefreshing = false;
 			}
 		}
 
-		return Promise.reject(error);
+		// Normalize all errors before rejecting
+		return Promise.reject(normalizeApiError(error));
 	}
 );
 
