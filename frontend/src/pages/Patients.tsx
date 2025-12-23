@@ -43,13 +43,7 @@ export default function Patients() {
 		setPage(1);
 	}, [status]);
 
-	const {
-		data,
-		isLoading,
-		isFetching,
-		error,
-		refetch,
-	} = useQuery({
+	const { data, isLoading, isFetching, error, refetch } = useQuery({
 		queryKey: ["patients", page, debouncedSearch, status],
 		queryFn: () =>
 			patientsApi.getAll({
@@ -86,7 +80,7 @@ export default function Patients() {
 	}, [patients]);
 
 	return (
-		<div className="space-y-6">
+		<div className="space-y-4 p-4">
 			<div className="flex justify-between items-center">
 				<div>
 					<h1 className="text-3xl font-bold tracking-tight">Patients</h1>
@@ -95,10 +89,7 @@ export default function Patients() {
 					</p>
 				</div>
 				<div className="flex gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => refetch()}>
+					<Button variant="outline" size="sm" onClick={() => refetch()}>
 						<RefreshCw className="mr-2 h-4 w-4" /> Refresh
 					</Button>
 					<Button onClick={handleAdd}>
@@ -163,9 +154,7 @@ export default function Patients() {
 						) : (
 							patients?.data?.map((patient: Patient) => (
 								<TableRow key={patient.id}>
-									<TableCell className="font-medium">
-										{patient.name}
-									</TableCell>
+									<TableCell className="font-medium">{patient.name}</TableCell>
 									<TableCell>{patient.ssn}</TableCell>
 									<TableCell>{patient.phone}</TableCell>
 									<TableCell>

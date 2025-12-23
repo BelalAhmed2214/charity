@@ -52,6 +52,7 @@ const patientSchema = z.object({
 	address: z.string().optional(),
 	diagnosis: z.string().optional(),
 	solution: z.string().optional(),
+	cost: z.coerce.number().min(0, "Cost must be zero or positive").optional(),
 });
 
 type PatientFormValues = z.infer<typeof patientSchema>;
@@ -84,6 +85,7 @@ export function PatientDialog({
 			address: "",
 			diagnosis: "",
 			solution: "",
+		cost: undefined,
 		},
 	});
 
@@ -103,6 +105,7 @@ export function PatientDialog({
 				address: patient.address || "",
 				diagnosis: patient.diagnosis || "",
 				solution: patient.solution || "",
+				cost: patient.cost ?? undefined,
 			});
 		} else {
 			form.reset({
@@ -111,6 +114,7 @@ export function PatientDialog({
 				phone: "",
 				status: "pending",
 				childrens: 0,
+				cost: undefined,
 			});
 		}
 	}, [patient, form, open]);
@@ -246,6 +250,20 @@ export function PatientDialog({
 										<FormLabel>Children Count</FormLabel>
 										<FormControl>
 											<Input type="number" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="cost"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Cost</FormLabel>
+										<FormControl>
+											<Input type="number" step="0.01" min="0" {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>

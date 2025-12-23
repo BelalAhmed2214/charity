@@ -32,6 +32,7 @@ class StorePatientRequest extends FormRequest
             'address' => ['nullable', 'string'],
             'diagnosis' => ['nullable', 'string'],
             'solution' => ['nullable', 'string'],
+            'cost' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 
@@ -49,6 +50,7 @@ class StorePatientRequest extends FormRequest
             'martial_status.in' => 'Invalid marital status',
             'status.in' => 'Invalid status',
             'childrens.min' => 'Number of children cannot be negative',
+            'cost.min' => 'Cost must be zero or positive',
         ];
     }
 
