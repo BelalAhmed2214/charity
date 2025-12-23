@@ -19,7 +19,8 @@ class Patient extends Model
         'governorate',
         'address',
         'diagnosis',
-        'solution'
+        'solution',
+        'cost',
     ];
     public function user()
     {
