@@ -1,5 +1,6 @@
 import axios, { AxiosError } from "axios";
 import type { ApiError, ValidationErrors } from "@/types/api";
+import i18n from "@/i18n";
 
 /**
  * Normalize an error from an API call into a consistent ApiError structure
@@ -38,7 +39,7 @@ export function normalizeApiError(error: unknown): ApiError {
 		if (axiosError.request) {
 			return {
 				status: 0,
-				message: "Network error. Please check your connection.",
+				message: i18n.t("errors.network"),
 			};
 		}
 	}
@@ -47,14 +48,14 @@ export function normalizeApiError(error: unknown): ApiError {
 	if (error instanceof Error) {
 		return {
 			status: 500,
-			message: error.message || "An unexpected error occurred",
+			message: error.message || i18n.t("errors.unexpected"),
 		};
 	}
 
 	// Unknown error type
 	return {
 		status: 500,
-		message: "An unexpected error occurred",
+		message: i18n.t("errors.unexpected"),
 	};
 }
 
@@ -95,21 +96,21 @@ export function getFieldErrors(error: ApiError): Record<string, string> {
 export function getStatusLabel(status: number): string {
 	switch (status) {
 		case 400:
-			return "Bad Request";
+			return i18n.t("errors.status.400");
 		case 401:
-			return "Unauthorized";
+			return i18n.t("errors.status.401");
 		case 403:
-			return "Forbidden";
+			return i18n.t("errors.status.403");
 		case 404:
-			return "Not Found";
+			return i18n.t("errors.status.404");
 		case 422:
-			return "Validation Error";
+			return i18n.t("errors.status.422");
 		case 500:
-			return "Server Error";
+			return i18n.t("errors.status.500");
 		case 503:
-			return "Service Unavailable";
+			return i18n.t("errors.status.503");
 		default:
-			return `Error ${status}`;
+			return i18n.t("errors.status.default", { status });
 	}
 }
 
@@ -119,20 +120,20 @@ export function getStatusLabel(status: number): string {
 function getDefaultMessage(status?: number): string {
 	switch (status) {
 		case 400:
-			return "Bad request. Please check your input.";
+			return i18n.t("errors.default.400");
 		case 401:
-			return "You are not authenticated. Please log in.";
+			return i18n.t("errors.default.401");
 		case 403:
-			return "You do not have permission to perform this action.";
+			return i18n.t("errors.default.403");
 		case 404:
-			return "The requested resource was not found.";
+			return i18n.t("errors.default.404");
 		case 422:
-			return "Validation failed. Please check your input.";
+			return i18n.t("errors.default.422");
 		case 500:
-			return "A server error occurred. Please try again later.";
+			return i18n.t("errors.default.500");
 		case 503:
-			return "Service temporarily unavailable. Please try again later.";
+			return i18n.t("errors.default.503");
 		default:
-			return "An error occurred. Please try again.";
+			return i18n.t("errors.default.general");
 	}
 }

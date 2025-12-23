@@ -8,8 +8,12 @@ import { ApiErrorAlert } from "@/components/ApiErrorAlert";
 import type { ApiError } from "@/types/api";
 import type { Stats } from "@/api/stats";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 export default function Dashboard() {
+	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { user, logout } = useAuth();
 	const {
@@ -29,21 +33,22 @@ export default function Dashboard() {
 		<div className="p-8">
 			<div className="flex justify-between items-center mb-8">
 				<div>
-					<h1 className="text-3xl font-bold">Dashboard</h1>
-					<p className="text-gray-600 mt-1">Welcome, {user?.name}</p>
+					<h1 className="text-3xl font-bold">{t("dashboard.title")}</h1>
+					<p className="text-gray-600 mt-1">{t("dashboard.welcomeUser", { name: user?.name })}</p>
 				</div>
 				<div className="flex gap-3">
+					<LanguageSwitcher />
 					<Button variant="outline" onClick={() => navigate("/patients")}>
-						Patients
+						{t("common.patients")}
 					</Button>
 					<Button variant="outline" onClick={() => navigate("/profile")}>
-						Profile
+						{t("common.profile")}
 					</Button>
 					<Button
 						className="text-white"
 						variant="destructive"
 						onClick={handleLogout}>
-						Logout
+						{t("common.logout")}
 					</Button>
 				</div>
 			</div>
@@ -54,7 +59,7 @@ export default function Dashboard() {
 			)}
 			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 				<div className="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
-					<h2 className="text-xl font-semibold mb-2">Total Patients</h2>
+					<h2 className="text-xl font-semibold mb-2">{t("dashboard.totalPatients")}</h2>
 					<p className="text-3xl font-bold text-orange-600">
 						{isLoading ? (
 							<Loader2 className="h-6 w-6 animate-spin" />
@@ -65,7 +70,7 @@ export default function Dashboard() {
 				</div>
 
 				<div className="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
-					<h2 className="text-xl font-semibold mb-2">Pending Patients</h2>
+					<h2 className="text-xl font-semibold mb-2">{t("dashboard.pendingPatients")}</h2>
 					<p className="text-3xl font-bold text-green-600">
 						{isLoading ? (
 							<Loader2 className="h-6 w-6 animate-spin" />
@@ -76,7 +81,7 @@ export default function Dashboard() {
 				</div>
 
 				<div className="p-6 bg-white rounded-lg shadow dark:bg-gray-800">
-					<h2 className="text-xl font-semibold mb-2">Completed Patients</h2>
+					<h2 className="text-xl font-semibold mb-2">{t("dashboard.completedPatients")}</h2>
 					<p className="text-3xl font-bold text-blue-600">
 						{isLoading ? (
 							<Loader2 className="h-6 w-6 animate-spin" />
@@ -89,17 +94,17 @@ export default function Dashboard() {
 
 			<Card className="mt-8">
 				<CardHeader>
-					<CardTitle>Cost Summary</CardTitle>
+					<CardTitle>{t("dashboard.costSummary")}</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
 						<div>
-							<div className="text-sm text-muted-foreground">Total Costs</div>
+							<div className="text-sm text-muted-foreground">{t("dashboard.totalCosts")}</div>
 							<div className="text-2xl font-bold">
 								{isLoading ? (
 									<Loader2 className="h-6 w-6 animate-spin" />
 								) : (
-									new Intl.NumberFormat("en-EG", {
+									new Intl.NumberFormat(i18n.language === "ar" ? "ar-EG" : "en-EG", {
 										style: "currency",
 										currency: "EGP",
 										minimumFractionDigits: 2,
@@ -110,13 +115,13 @@ export default function Dashboard() {
 						</div>
 						<div>
 							<div className="text-sm text-muted-foreground">
-								Avg Cost / Patient
+								{t("dashboard.avgCostPerPatient")}
 							</div>
 							<div className="text-2xl font-bold">
 								{isLoading ? (
 									<Loader2 className="h-6 w-6 animate-spin" />
 								) : (
-									new Intl.NumberFormat("en-EG", {
+									new Intl.NumberFormat(i18n.language === "ar" ? "ar-EG" : "en-EG", {
 										style: "currency",
 										currency: "EGP",
 										minimumFractionDigits: 2,

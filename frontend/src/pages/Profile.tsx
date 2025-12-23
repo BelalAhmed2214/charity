@@ -10,8 +10,10 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function Profile() {
+	const { t } = useTranslation();
 	const { user, logout, isLoading } = useAuth();
 	const navigate = useNavigate();
 
@@ -24,7 +26,7 @@ export default function Profile() {
 	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-lg text-gray-600">Loading...</div>
+				<div className="text-lg text-gray-600">{t("common.loading")}</div>
 			</div>
 		);
 	}
@@ -42,30 +44,30 @@ export default function Profile() {
 			<Card className="w-full max-w-md">
 				<CardHeader>
 					<CardTitle className="text-2xl font-bold text-center">
-						Profile
+						{t("profile.title")}
 					</CardTitle>
 					<CardDescription className="text-center">
-						Your account information
+						{t("profile.description")}
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<div className="space-y-2">
-						<label className="text-sm font-medium text-gray-700">Name</label>
+						<label className="text-sm font-medium text-gray-700">{t("patients.table.name")}</label>
 						<div className="p-2 bg-gray-50 rounded border">{user.name}</div>
 					</div>
 					<div className="space-y-2">
-						<label className="text-sm font-medium text-gray-700">Phone</label>
+						<label className="text-sm font-medium text-gray-700">{t("patients.table.phone")}</label>
 						<div className="p-2 bg-gray-50 rounded border">{user.phone}</div>
 					</div>
 					{user.email && (
 						<div className="space-y-2">
-							<label className="text-sm font-medium text-gray-700">Email</label>
+							<label className="text-sm font-medium text-gray-700">{t("common.email")}</label>
 							<div className="p-2 bg-gray-50 rounded border">{user.email}</div>
 						</div>
 					)}
 					<div className="space-y-2">
 						<label className="text-sm font-medium text-gray-700">
-							Member Since
+							{t("profile.memberSince")}
 						</label>
 						<div className="p-2 bg-gray-50 rounded border">
 							{new Date(user.created_at).toLocaleDateString()}
@@ -77,13 +79,13 @@ export default function Profile() {
 						variant="outline"
 						className="flex-1"
 						onClick={() => navigate("/dashboard")}>
-						Back to Dashboard
+						{t("common.backToDashboard")}
 					</Button>
 					<Button
 						variant="destructive"
 						className="flex-1 text-white"
 						onClick={handleLogout}>
-						Logout
+						{t("common.logout")}
 					</Button>
 				</CardFooter>
 			</Card>

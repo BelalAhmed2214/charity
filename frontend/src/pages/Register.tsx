@@ -18,32 +18,37 @@ import { useNavigate } from "react-router-dom";
 import { ApiErrorAlert } from "@/components/ApiErrorAlert";
 import { type ApiError } from "@/types/api";
 import { getFieldErrors } from "@/utils/errors";
+import { useTranslation } from "react-i18next";
 
-const registerSchema = z
-	.object({
-		name: z.string().min(2, "Name must be at least 2 characters"),
-		phone: z.string().min(10, "Phone number must be at least 10 digits"),
-		email: z
-			.string()
-			.email("Invalid email address")
-			.optional()
-			.or(z.literal("")),
-		password: z.string().min(6, "Password must be at least 6 characters"),
-		passwordConfirm: z
-			.string()
-			.min(6, "Password must be at least 6 characters"),
-	})
-	.refine((data) => data.password === data.passwordConfirm, {
-		message: "Passwords do not match",
-		path: ["passwordConfirm"],
-	});
 
-type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function Register() {
+	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { register: registerUser } = useAuth();
 	const [error, setError] = useState<ApiError | null>(null);
+
+	const registerSchema = z
+		.object({
+			name: z.string().min(2, t("auth.validation.nameMin")),
+			phone: z.string().min(10, t("auth.validation.phoneMin")),
+			email: z
+				.string()
+				.email(t("auth.validation.emailInvalid"))
+				.optional()
+				.or(z.literal("")),
+			password: z.string().min(6, t("auth.validation.passwordMin")),
+			passwordConfirm: z
+				.string()
+				.min(6, t("auth.validation.passwordMin")),
+		})
+		.refine((data) => data.password === data.passwordConfirm, {
+			message: t("auth.validation.passwordMismatch"),
+			path: ["passwordConfirm"],
+		});
+
+	type RegisterFormValues = z.infer<typeof registerSchema>;
+
 	const {
 		register,
 		handleSubmit,
@@ -79,17 +84,17 @@ export default function Register() {
 			<Card className="w-full max-w-md">
 				<CardHeader>
 					<CardTitle className="text-2xl font-bold text-center">
-						Register
+						{t("auth.registerTitle")}
 					</CardTitle>
 					<CardDescription className="text-center">
-						Create a new account to get started.
+						{t("auth.registerDescription")}
 					</CardDescription>
 				</CardHeader>
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<CardContent className="space-y-4">
 						<ApiErrorAlert error={error} onDismiss={() => setError(null)} />
 						<div className="space-y-2">
-							<Label htmlFor="name">Full Name</Label>
+							<Label htmlFor="name">{t("auth.fullNameLabel")}</Label>
 							<Input
 								id="name"
 								type="text"
@@ -101,7 +106,7 @@ export default function Register() {
 							)}
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="phone">Phone Number</Label>
+							<Label htmlFor="phone">{t("auth.phoneLabel")}</Label>
 							<Input
 								id="phone"
 								type="tel"
@@ -113,7 +118,7 @@ export default function Register() {
 							)}
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="email">Email (Optional)</Label>
+							<Label htmlFor="email">{t("auth.emailLabel")}</Label>
 							<Input
 								id="email"
 								type="email"
@@ -125,7 +130,7 @@ export default function Register() {
 							)}
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="password">Password</Label>
+							<Label htmlFor="password">{t("auth.passwordLabel")}</Label>
 							<Input id="password" type="password" {...register("password")} />
 							{errors.password && (
 								<p className="text-sm text-red-500">
@@ -134,7 +139,7 @@ export default function Register() {
 							)}
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="passwordConfirm">Confirm Password</Label>
+							<Label htmlFor="passwordConfirm">{t("auth.confirmPasswordLabel")}</Label>
 							<Input
 								id="passwordConfirm"
 								type="password"
@@ -149,14 +154,14 @@ export default function Register() {
 					</CardContent>
 					<CardFooter className="flex flex-col gap-3">
 						<Button type="submit" className="w-full" disabled={isSubmitting}>
-							{isSubmitting ? "Registering..." : "Register"}
+							{isSubmitting ? t("auth.registering") : t("auth.registerButton")}
 						</Button>
 						<Button
 							type="button"
 							variant="outline"
 							className="w-full"
 							onClick={() => navigate("/login")}>
-							Already have an account? Login
+							{t("auth.alreadyHaveAccount")}
 						</Button>
 					</CardFooter>
 				</form>

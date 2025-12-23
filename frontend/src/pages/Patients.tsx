@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { patientsApi } from "../api/patients";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,18 +18,90 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, Loader2, RefreshCw } from "lucide-react";
+import {
+	Plus,
+	Search,
+	Loader2,
+	RefreshCw,
+	Eye,
+	Edit,
+	Trash2,
+	CheckCircle,
+	ChevronUp,
+	ChevronDown,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 import { ApiErrorAlert } from "@/components/ApiErrorAlert";
 import type { ApiError, Patient } from "@/types/api";
 import { PatientDialog } from "@/components/patients/PatientDialog";
+import { useTranslation } from "react-i18next";
 
 export default function Patients() {
+	const { t } = useTranslation();
+	const navigate = useNavigate();
+	const queryClient = useQueryClient();
 	const [page, setPage] = useState(1);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [debouncedSearch, setDebouncedSearch] = useState("");
 	const [status, setStatus] = useState<string>("all");
+	const [sortBy, setSortBy] = useState<string>("created_at");
+	const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+	const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
+
+	const deleteMutation = useMutation({
+		mutationFn: (id: number) => patientsApi.delete(id),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["patients"] });
+			setDeleteConfirmOpen(false);
+			setPatientToDelete(null);
+		},
+	});
+
+	const completeMutation = useMutation({
+		mutationFn: (patient: Patient) => {
+			const { user_id, user, created_at, updated_at, ...updateData } = patient;
+			return patientsApi.update(patient.id, { ...updateData, status: "complete" });
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["patients"] });
+		},
+	});
+
+	const handleDeleteClick = (patient: Patient) => {
+		setPatientToDelete(patient);
+		setDeleteConfirmOpen(true);
+	};
+
+	const confirmDelete = () => {
+		if (patientToDelete) {
+			deleteMutation.mutate(patientToDelete.id);
+		}
+	};
+
+	const handleComplete = (patient: Patient) => {
+		completeMutation.mutate(patient);
+	};
+
+	const handleSort = (column: string) => {
+		if (sortBy === column) {
+			setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+		} else {
+			setSortBy(column);
+			setSortOrder("desc");
+		}
+		setPage(1);
+	};
 
 	useEffect(() => {
 		const handle = setTimeout(() => {
@@ -44,12 +116,14 @@ export default function Patients() {
 	}, [status]);
 
 	const { data, isLoading, isFetching, error, refetch } = useQuery({
-		queryKey: ["patients", page, debouncedSearch, status],
+		queryKey: ["patients", page, debouncedSearch, status, sortBy, sortOrder],
 		queryFn: () =>
 			patientsApi.getAll({
 				page,
 				search: debouncedSearch || undefined,
 				status: status === "all" ? undefined : status,
+				sort_by: sortBy,
+				sort_order: sortOrder,
 			}),
 		placeholderData: (previousData) => previousData,
 		staleTime: 5_000,
@@ -76,24 +150,37 @@ export default function Patients() {
 
 	const resultSummary = useMemo(() => {
 		if (!patients) return null;
-		return `${patients.total} total • showing ${patients.data.length} on page ${patients.current_page}`;
-	}, [patients]);
+		return t("patients.pagination.summary", {
+			total: patients.total,
+			count: patients.data.length,
+			page: patients.current_page,
+		});
+	}, [patients, t]);
+
+	const SortIcon = ({ column }: { column: string }) => {
+		if (sortBy !== column) return null;
+		return sortOrder === "asc" ? (
+			<ChevronUp className="ml-1 h-4 w-4" />
+		) : (
+			<ChevronDown className="ml-1 h-4 w-4" />
+		);
+	};
 
 	return (
 		<div className="space-y-4 p-4">
 			<div className="flex justify-between items-center">
 				<div>
-					<h1 className="text-3xl font-bold tracking-tight">Patients</h1>
+					<h1 className="text-3xl font-bold tracking-tight">{t("patients.title")}</h1>
 					<p className="text-muted-foreground">
-						Manage patient records and their status.
+						{t("patients.description")}
 					</p>
 				</div>
 				<div className="flex gap-2">
-					<Button variant="outline" size="sm" onClick={() => refetch()}>
-						<RefreshCw className="mr-2 h-4 w-4" /> Refresh
+					<Button variant="outline" onClick={() => refetch()}>
+						<RefreshCw className="mr-2 h-4 w-4" /> {t("patients.refresh")}
 					</Button>
 					<Button onClick={handleAdd}>
-						<Plus className="mr-2 h-4 w-4" /> Add Patient
+						<Plus className="mr-2 h-4 w-4" /> {t("patients.addPatient")}
 					</Button>
 				</div>
 			</div>
@@ -104,7 +191,7 @@ export default function Patients() {
 				<div className="relative flex-1 max-w-sm">
 					<Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
 					<Input
-						placeholder="Search by name, SSN, or phone..."
+						placeholder={t("patients.searchPlaceholder")}
 						className="pl-8"
 						value={searchTerm}
 						onChange={(e) => setSearchTerm(e.target.value)}
@@ -112,12 +199,12 @@ export default function Patients() {
 				</div>
 				<Select value={status} onValueChange={setStatus}>
 					<SelectTrigger className="w-[180px]">
-						<SelectValue placeholder="Filter by status" />
+						<SelectValue placeholder={t("patients.filterStatus")} />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="all">All Statuses</SelectItem>
-						<SelectItem value="pending">Pending</SelectItem>
-						<SelectItem value="complete">Complete</SelectItem>
+						<SelectItem value="all">{t("patients.allStatuses")}</SelectItem>
+						<SelectItem value="pending">{t("patients.pending")}</SelectItem>
+						<SelectItem value="complete">{t("patients.complete")}</SelectItem>
 					</SelectContent>
 				</Select>
 			</div>
@@ -131,31 +218,69 @@ export default function Patients() {
 				<Table>
 					<TableHeader>
 						<TableRow>
-							<TableHead>Name</TableHead>
-							<TableHead>SSN</TableHead>
-							<TableHead>Phone</TableHead>
-							<TableHead>Created By</TableHead>
-							<TableHead>Created At</TableHead>
-							<TableHead>Status</TableHead>
-							<TableHead>Actions</TableHead>
+							<TableHead
+								className="cursor-pointer hover:text-foreground"
+								onClick={() => handleSort("name")}>
+								<div className="flex items-center">
+									{t("patients.table.name")}
+									<SortIcon column="name" />
+								</div>
+							</TableHead>
+							<TableHead
+								className="cursor-pointer hover:text-foreground"
+								onClick={() => handleSort("ssn")}>
+								<div className="flex items-center">
+									{t("patients.table.ssn")}
+									<SortIcon column="ssn" />
+								</div>
+							</TableHead>
+							<TableHead
+								className="cursor-pointer hover:text-foreground"
+								onClick={() => handleSort("phone")}>
+								<div className="flex items-center">
+									{t("patients.table.phone")}
+									<SortIcon column="phone" />
+								</div>
+							</TableHead>
+							<TableHead>{t("patients.table.createdBy")}</TableHead>
+							<TableHead
+								className="cursor-pointer hover:text-foreground"
+								onClick={() => handleSort("created_at")}>
+								<div className="flex items-center">
+									{t("patients.table.createdAt")}
+									<SortIcon column="created_at" />
+								</div>
+							</TableHead>
+							<TableHead
+								className="cursor-pointer hover:text-foreground"
+								onClick={() => handleSort("status")}>
+								<div className="flex items-center">
+									{t("patients.table.status")}
+									<SortIcon column="status" />
+								</div>
+							</TableHead>
+							<TableHead>{t("patients.table.actions")}</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{isLoading ? (
 							<TableRow>
-								<TableCell colSpan={5} className="h-24 text-center">
+								<TableCell colSpan={7} className="h-24 text-center">
 									<Loader2 className="h-6 w-6 animate-spin mx-auto" />
 								</TableCell>
 							</TableRow>
 						) : patients?.data?.length === 0 ? (
 							<TableRow>
-								<TableCell colSpan={5} className="h-24 text-center">
-									No patients found.
+								<TableCell colSpan={7} className="h-24 text-center">
+									{t("patients.table.empty")}
 								</TableCell>
 							</TableRow>
 						) : (
 							patients?.data?.map((patient: Patient) => (
-								<TableRow key={patient.id}>
+								<TableRow
+									key={patient.id}
+									className="cursor-pointer hover:bg-muted/50"
+									onClick={() => navigate(`/patients/${patient.id}`)}>
 									<TableCell className="font-medium">{patient.name}</TableCell>
 									<TableCell>{patient.ssn}</TableCell>
 									<TableCell>{patient.phone}</TableCell>
@@ -183,16 +308,57 @@ export default function Patients() {
 													? "bg-green-100 text-green-800"
 													: "bg-yellow-100 text-yellow-800"
 											}`}>
-											{patient.status}
+											{t(`patients.${patient.status}`)}
 										</span>
 									</TableCell>
 									<TableCell>
-										<Button
-											variant="ghost"
-											size="sm"
-											onClick={() => handleEdit(patient)}>
-											Edit
-										</Button>
+
+										<div className="flex items-center gap-1">
+											<Button
+												variant="ghost"
+												size="icon"
+												title={t("patients.actions.view")}
+												onClick={(e) => {
+													e.stopPropagation();
+													navigate(`/patients/${patient.id}`);
+												}}>
+												<Eye className="h-4 w-4" />
+											</Button>
+											<Button
+												variant="ghost"
+												size="icon"
+												title={t("patients.actions.edit")}
+												onClick={(e) => {
+													e.stopPropagation();
+													handleEdit(patient);
+												}}>
+												<Edit className="h-4 w-4" />
+											</Button>
+											<Button
+												variant="ghost"
+												size="icon"
+												title={t("patients.actions.delete")}
+												className="text-destructive hover:text-destructive"
+												onClick={(e) => {
+													e.stopPropagation();
+													handleDeleteClick(patient);
+												}}>
+												<Trash2 className="h-4 w-4" />
+											</Button>
+											{patient.status !== "complete" && (
+												<Button
+													variant="ghost"
+													size="icon"
+													title={t("patients.actions.markComplete")}
+													className="text-green-600 hover:text-green-700"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleComplete(patient);
+													}}>
+													<CheckCircle className="h-4 w-4" />
+												</Button>
+											)}
+										</div>
 									</TableCell>
 								</TableRow>
 							))
@@ -212,10 +378,13 @@ export default function Patients() {
 							size="sm"
 							onClick={() => setPage((p) => Math.max(1, p - 1))}
 							disabled={page === 1}>
-							Previous
+							{t("patients.pagination.previous")}
 						</Button>
 						<div className="text-sm text-muted-foreground">
-							Page {patients.current_page} of {patients.last_page}
+							{t("patients.pagination.info", {
+								current: patients.current_page,
+								total: patients.last_page,
+							})}
 						</div>
 						<Button
 							variant="outline"
@@ -224,7 +393,7 @@ export default function Patients() {
 								setPage((p) => Math.min(patients.last_page, p + 1))
 							}
 							disabled={page === patients.last_page}>
-							Next
+							{t("patients.pagination.next")}
 						</Button>
 					</div>
 				</div>
@@ -235,6 +404,35 @@ export default function Patients() {
 				onOpenChange={setDialogOpen}
 				patient={selectedPatient}
 			/>
+
+			<Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>{t("patients.actions.confirmDeleteTitle")}</DialogTitle>
+						<DialogDescription>
+							{t("patients.actions.confirmDeleteDesc")}
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button
+							variant="outline"
+							
+							onClick={() => setDeleteConfirmOpen(false)}>
+							{t("patients.actions.cancel")}
+						</Button>
+						<Button
+							variant="destructive"
+							className="text-white"
+							onClick={confirmDelete}
+							disabled={deleteMutation.isPending}>
+							{deleteMutation.isPending ? (
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							) : null}
+							{t("patients.actions.confirmDelete")}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

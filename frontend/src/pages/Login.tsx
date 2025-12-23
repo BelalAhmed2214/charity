@@ -17,18 +17,24 @@ import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ApiErrorAlert } from "@/components/ApiErrorAlert";
 import { type ApiError } from "@/types/api";
+import { useTranslation } from "react-i18next";
 
-const loginSchema = z.object({
-	phone: z.string().min(10, "Phone number must be at least 10 digits"),
-	password: z.string().min(6, "Password must be at least 6 characters"),
-});
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+
 
 export default function Login() {
+	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const { login } = useAuth();
 	const [error, setError] = useState<ApiError | null>(null);
+
+	const loginSchema = z.object({
+		phone: z.string().min(10, t("auth.validation.phoneMin")),
+		password: z.string().min(6, t("auth.validation.passwordMin")),
+	});
+
+	type LoginFormValues = z.infer<typeof loginSchema>;
+
 	const {
 		register,
 		handleSubmit,
@@ -54,17 +60,17 @@ export default function Login() {
 			<Card className="w-full max-w-md">
 				<CardHeader>
 					<CardTitle className="text-2xl font-bold text-center">
-						Login
+						{t("auth.loginTitle")}
 					</CardTitle>
 					<CardDescription className="text-center">
-						Enter your phone number and password to access your account.
+						{t("auth.loginDescription")}
 					</CardDescription>
 				</CardHeader>
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<CardContent className="space-y-4">
 						<ApiErrorAlert error={error} onDismiss={() => setError(null)} />
 						<div className="space-y-2">
-							<Label htmlFor="phone">Phone Number</Label>
+							<Label htmlFor="phone">{t("auth.phoneLabel")}</Label>
 							<Input
 								id="phone"
 								type="tel"
@@ -76,7 +82,7 @@ export default function Login() {
 							)}
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="password">Password</Label>
+							<Label htmlFor="password">{t("auth.passwordLabel")}</Label>
 							<Input id="password" type="password" {...register("password")} />
 							{errors.password && (
 								<p className="text-sm text-red-500">
@@ -87,14 +93,14 @@ export default function Login() {
 					</CardContent>
 					<CardFooter className="flex flex-col gap-3">
 						<Button type="submit" className="w-full" disabled={isSubmitting}>
-							{isSubmitting ? "Logging in..." : "Login"}
+							{isSubmitting ? t("auth.loggingIn") : t("auth.loginButton")}
 						</Button>
 						<Button
 							type="button"
 							variant="outline"
 							className="w-full"
 							onClick={() => navigate("/register")}>
-							Don't have an account? Register
+							{t("auth.noAccount")}
 						</Button>
 					</CardFooter>
 				</form>
