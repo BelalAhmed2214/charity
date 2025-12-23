@@ -1,0 +1,177 @@
+{
+  "common": {
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "register": "إنشاء حساب",
+    "dashboard": "الرئيسية",
+    "patients": "المرضى",
+    "profile": "الملف الشخصي",
+    "loading": "جاري التحميل...",
+    "backToDashboard": "العودة للرئيسية",
+    "welcome": "مرحباً",
+    "unknown": "غير معروف",
+    "na": "غير متوفر",
+    "email": "البريد الإلكتروني"
+  },
+  "auth": {
+    "loginTitle": "تسجيل الدخول",
+    "loginDescription": "أدخل رقم الهاتف وكلمة المرور للدخول إلى حسابك.",
+    "phoneLabel": "رقم الهاتف",
+    "passwordLabel": "كلمة المرور",
+    "phonePlaceholder": "01xxxxxxxxx",
+    "loginButton": "دخول",
+    "loggingIn": "جاري الدخول...",
+    "noAccount": "ليس لديك حساب؟ سجل الآن",
+    "registerTitle": "إنشاء حساب جديد",
+    "registerDescription": "أنشئ حساباً جديداً للبدء.",
+    "fullNameLabel": "الاسم الكامل",
+    "fullNamePlaceholder": "الاسم",
+    "emailLabel": "البريد الإلكتروني (اختياري)",
+    "emailPlaceholder": "example@domain.com",
+    "confirmPasswordLabel": "تأكيد كلمة المرور",
+    "registerButton": "تسجيل",
+    "registering": "جاري التسجيل...",
+    "alreadyHaveAccount": "لديك حساب بالفعل؟ سجل دخول",
+    "validation": {
+      "required": "مطلوب",
+      "phoneMin": "رقم الهاتف يجب أن يكون 10 أرقام على الأقل",
+      "passwordMin": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+      "nameMin": "الاسم يجب أن يكون حرفين على الأقل",
+      "emailInvalid": "البريد الإلكتروني غير صالح",
+      "passwordMismatch": "كلمات المرور غير متطابقة"
+    }
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "welcomeUser": "مرحباً، {{name}}",
+    "totalPatients": "إجمالي المرضى",
+    "pendingPatients": "مرضى قيد الانتظار",
+    "completedPatients": "مرضى مكتملين",
+    "costSummary": "ملخص التكاليف",
+    "totalCosts": "إجمالي التكاليف",
+    "avgCostPerPatient": "متوسط التكلفة / مريض"
+  },
+  "patients": {
+    "title": "المرضى",
+    "description": "إدارة سجلات المرضى وحالاتهم.",
+    "refresh": "تحديث",
+    "addPatient": "إضافة مريض",
+    "searchPlaceholder": "بحث بالاسم، الرقم القومي، أو الهاتف...",
+    "filterStatus": "تصفية حسب الحالة",
+    "allStatuses": "كل الحالات",
+    "pending": "قيد الانتظار",
+    "complete": "مكتمل",
+    "table": {
+      "name": "الاسم",
+      "ssn": "الرقم القومي",
+      "phone": "الهاتف",
+      "createdBy": "أضيف بواسطة",
+      "createdAt": "تاريخ الإضافة",
+      "status": "الحالة",
+      "actions": "إجراءات",
+      "empty": "لا يوجد مرضى."
+    },
+    "edit": "تعديل",
+    "pagination": {
+      "previous": "السابق",
+      "next": "التالي",
+      "info": "صفحة {{current}} من {{total}}",
+      "summary": "{{total}} إجمالي • عرض {{count}} في صفحة {{page}}"
+    },
+    "dialog": {
+      "addTitle": "إضافة مريض جديد",
+      "editTitle": "تعديل بيانات المريض",
+      "addDescription": "أدخل بيانات المريض الجديد.",
+      "editDescription": "تحديث بيانات المريض أدناه.",
+      "form": {
+        "fullName": "الاسم الكامل *",
+        "ssn": "الرقم القومي *",
+        "phone": "رقم الهاتف",
+        "age": "العمر",
+        "maritalStatus": "الحالة الاجتماعية",
+        "children": "عدد الأطفال",
+        "cost": "التكلفة",
+        "governorate": "المحافظة",
+        "status": "الحالة",
+        "address": "العنوان",
+        "diagnosis": "التشخيص / المشكلة",
+        "solution": "الحل المقترح",
+        "cancel": "إلغاء",
+        "create": "إنشاء مريض",
+        "update": "تحديث مريض",
+        "selectStatus": "اختر الحالة",
+        "marital": {
+          "single": "أعزب",
+          "married": "متزوج",
+          "divorced": "مطلق",
+          "widowed": "أرمل"
+        },
+        "placeholders": {
+          "fullName": "أحمد حسن",
+          "ssn": "١٤ رقم للرقم القومي",
+          "phone": "٠١xxxxxxxxx",
+          "governorate": "القاهرة",
+          "address": "العنوان بالكامل...",
+          "diagnosis": "وصف الحالة...",
+          "solution": "الإجراء الموصى به..."
+        }
+      },
+      "costTracking": "تتبع التكلفة",
+      "currentTotal": "الإجمالي الحالي:"
+    },
+    "actions": {
+      "view": "عرض",
+      "edit": "تعديل",
+      "delete": "حذف",
+      "complete": "إكمال",
+      "confirmDeleteTitle": "حذف المريض",
+      "confirmDeleteDesc": "هل أنت متأكد أنك تريد حذف هذا المريض؟ لا يمكن التراجع عن هذا الإجراء.",
+      "confirmDelete": "حذف",
+      "cancel": "إلغاء",
+      "markComplete": "تحديد كمكتمل"
+    },
+    "details": {
+      "title": "تفاصيل المريض",
+      "personalInfo": "المعلومات الشخصية",
+      "medicalInfo": "المعلومات الطبية",
+      "statusCost": "الحالة والتكلفة",
+      "back": "العودة للمرضى",
+      "notFound": "المريض غير موجود"
+    }
+  },
+  "errors": {
+    "network": "خطأ في الشبكة. يرجى التحقق من اتصالك.",
+    "unexpected": "حدث خطأ غير متوقع",
+    "status": {
+      "400": "طلب غير صالح",
+      "401": "غير مصرح",
+      "403": "ممنوع",
+      "404": "غير موجود",
+      "422": "خطأ في التحقق",
+      "500": "خطأ في الخادم",
+      "503": "الخدمة غير متوفرة",
+      "default": "خطأ {{status}}"
+    },
+    "default": {
+      "400": "طلب غير صالح. يرجى التحقق من المدخلات.",
+      "401": "أنت غير مسجل الدخول. يرجى تسجيل الدخول.",
+      "403": "ليس لديك صلاحية للقيام بهذا الإجراء.",
+      "404": "المورد المطلوب غير موجود.",
+      "422": "فشل التحقق. يرجى مراجعة المدخلات.",
+      "500": "حدث خطأ في الخادم. يرجى المحاولة لاحقاً.",
+      "503": "الخدمة غير متوفرة مؤقتاً. يرجى المحاولة لاحقاً.",
+      "general": "حدث خطأ. يرجى المحاولة مرة أخرى."
+    },
+    "boundary": {
+      "title": "حدث خطأ ما",
+      "description": "حدث خطأ غير متوقع. يرجى محاولة تحديث الصفحة أو الاتصال بالدعم إذا استمرت المشكلة.",
+      "tryAgain": "حاول مرة أخرى",
+      "goHome": "العودة للرئيسية"
+    }
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "description": "معلومات حسابك",
+    "memberSince": "عضو منذ"
+  }
+}
