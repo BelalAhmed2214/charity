@@ -34,6 +34,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { ApiErrorAlert } from "@/components/ApiErrorAlert";
 import { normalizeApiError } from "@/utils/errors";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 const patientSchema = z.object({
 	name: z.string().min(1, "Name is required"),
@@ -68,6 +70,7 @@ export function PatientDialog({
 	onOpenChange,
 	patient,
 }: PatientDialogProps) {
+	const { t } = useTranslation();
 	const queryClient = useQueryClient();
 	const isEditing = !!patient;
 
@@ -144,22 +147,22 @@ export function PatientDialog({
 			<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>
-						{isEditing ? "Edit Patient" : "Add New Patient"}
+						{isEditing ? t("patients.dialog.editTitle") : t("patients.dialog.addTitle")}
 					</DialogTitle>
 					<DialogDescription>
 						{isEditing
-							? "Update the patient details below."
-							: "Enter the details for the new patient record."}
+							? t("patients.dialog.editDescription")
+							: t("patients.dialog.addDescription")}
 					</DialogDescription>
 				</DialogHeader>
 
 				{patient && (
 					<div className="rounded-md border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
-						<div className="font-medium text-foreground">Created By</div>
+						<div className="font-medium text-foreground">{t("patients.table.createdBy")}</div>
 						<div className="flex flex-col">
-							<span>{patient.user?.name ?? "Unknown"}</span>
+							<span>{patient.user?.name ?? t("common.unknown")}</span>
 							<span className="text-xs">
-								{patient.user?.email ?? patient.user?.phone ?? "N/A"}
+								{patient.user?.email ?? patient.user?.phone ?? t("common.na")}
 							</span>
 							<span className="text-xs">
 								{patient.created_at
@@ -182,9 +185,9 @@ export function PatientDialog({
 								name="name"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Full Name *</FormLabel>
+										<FormLabel>{t("patients.dialog.form.fullName")}</FormLabel>
 										<FormControl>
-											<Input placeholder="Ahmed Hassan" {...field} />
+											<Input placeholder={t("patients.dialog.form.placeholders.fullName")} {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -196,9 +199,9 @@ export function PatientDialog({
 								name="ssn"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>SSN *</FormLabel>
+										<FormLabel>{t("patients.dialog.form.ssn")}</FormLabel>
 										<FormControl>
-											<Input placeholder="14 digit national ID" {...field} />
+											<Input placeholder={t("patients.dialog.form.placeholders.ssn")} {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -210,9 +213,9 @@ export function PatientDialog({
 								name="phone"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Phone Number</FormLabel>
+										<FormLabel>{t("patients.dialog.form.phone")}</FormLabel>
 										<FormControl>
-											<Input placeholder="01xxxxxxxxx" {...field} />
+											<Input placeholder={t("patients.dialog.form.placeholders.phone")} {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -224,7 +227,7 @@ export function PatientDialog({
 								name="age"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Age</FormLabel>
+										<FormLabel>{t("patients.dialog.form.age")}</FormLabel>
 										<FormControl>
 											<Input type="number" {...field} />
 										</FormControl>
@@ -238,20 +241,20 @@ export function PatientDialog({
 								name="martial_status"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Marital Status</FormLabel>
+										<FormLabel>{t("patients.dialog.form.maritalStatus")}</FormLabel>
 										<Select
 											onValueChange={field.onChange}
 											defaultValue={field.value}>
 											<FormControl>
 												<SelectTrigger>
-													<SelectValue placeholder="Select status" />
+													<SelectValue placeholder={t("patients.dialog.form.selectStatus")} />
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												<SelectItem value="single">Single</SelectItem>
-												<SelectItem value="married">Married</SelectItem>
-												<SelectItem value="divorced">Divorced</SelectItem>
-												<SelectItem value="widowed">Widowed</SelectItem>
+												<SelectItem value="single">{t("patients.dialog.form.marital.single")}</SelectItem>
+												<SelectItem value="married">{t("patients.dialog.form.marital.married")}</SelectItem>
+												<SelectItem value="divorced">{t("patients.dialog.form.marital.divorced")}</SelectItem>
+												<SelectItem value="widowed">{t("patients.dialog.form.marital.widowed")}</SelectItem>
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -264,7 +267,7 @@ export function PatientDialog({
 								name="children"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Children Count</FormLabel>
+										<FormLabel>{t("patients.dialog.form.children")}</FormLabel>
 										<FormControl>
 											<Input type="number" {...field} />
 										</FormControl>
@@ -278,9 +281,19 @@ export function PatientDialog({
 								name="cost"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Cost</FormLabel>
+										<FormLabel>{t("patients.dialog.form.cost")}</FormLabel>
 										<FormControl>
-											<Input type="number" step="0.01" min="0" {...field} />
+											<Input
+												type="number"
+												step="0.01"
+												min="0"
+												{...field}
+												value={field.value ?? ""}
+												onChange={(e) => {
+													const val = e.target.value;
+													field.onChange(val === "" ? undefined : Number(val));
+												}}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -292,9 +305,9 @@ export function PatientDialog({
 								name="governorate"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Governorate</FormLabel>
+										<FormLabel>{t("patients.dialog.form.governorate")}</FormLabel>
 										<FormControl>
-											<Input placeholder="Cairo" {...field} />
+											<Input placeholder={t("patients.dialog.form.placeholders.governorate")} {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -306,18 +319,18 @@ export function PatientDialog({
 								name="status"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Status</FormLabel>
+										<FormLabel>{t("patients.dialog.form.status")}</FormLabel>
 										<Select
 											onValueChange={field.onChange}
 											defaultValue={field.value}>
 											<FormControl>
 												<SelectTrigger>
-													<SelectValue placeholder="Select status" />
+													<SelectValue placeholder={t("patients.dialog.form.selectStatus")} />
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												<SelectItem value="pending">Pending</SelectItem>
-												<SelectItem value="complete">Complete</SelectItem>
+												<SelectItem value="pending">{t("patients.pending")}</SelectItem>
+												<SelectItem value="complete">{t("patients.complete")}</SelectItem>
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -331,9 +344,9 @@ export function PatientDialog({
 							name="address"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Address</FormLabel>
+									<FormLabel>{t("patients.dialog.form.address")}</FormLabel>
 									<FormControl>
-										<Textarea placeholder="Full address..." {...field} />
+										<Textarea placeholder={t("patients.dialog.form.placeholders.address")} {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -345,10 +358,10 @@ export function PatientDialog({
 							name="diagnosis"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Diagnosis / Problem</FormLabel>
+									<FormLabel>{t("patients.dialog.form.diagnosis")}</FormLabel>
 									<FormControl>
 										<Textarea
-											placeholder="Describe the condition..."
+											placeholder={t("patients.dialog.form.placeholders.diagnosis")}
 											{...field}
 										/>
 									</FormControl>
@@ -362,9 +375,9 @@ export function PatientDialog({
 							name="solution"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Proposed Solution</FormLabel>
+									<FormLabel>{t("patients.dialog.form.solution")}</FormLabel>
 									<FormControl>
-										<Textarea placeholder="Recommended action..." {...field} />
+										<Textarea placeholder={t("patients.dialog.form.placeholders.solution")} {...field} />
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -376,13 +389,13 @@ export function PatientDialog({
 								type="button"
 								variant="outline"
 								onClick={() => onOpenChange(false)}>
-								Cancel
+								{t("patients.dialog.form.cancel")}
 							</Button>
 							<Button type="submit" disabled={mutation.isPending}>
 								{mutation.isPending && (
 									<span className="mr-2 h-4 w-4 animate-spin">⏳</span>
 								)}
-								{isEditing ? "Update Patient" : "Create Patient"}
+								{isEditing ? t("patients.dialog.form.update") : t("patients.dialog.form.create")}
 							</Button>
 						</DialogFooter>
 					</form>
@@ -392,15 +405,15 @@ export function PatientDialog({
 					<div className="mt-6 space-y-4">
 						<Card>
 							<CardHeader>
-								<CardTitle>Cost Tracking</CardTitle>
+								<CardTitle>{t("patients.dialog.costTracking")}</CardTitle>
 							</CardHeader>
 							<CardContent className="space-y-4">
 								{/* Cost tracking form removed */}
 
 								<div className="text-sm text-muted-foreground">
-									Current Total:{" "}
+									{t("patients.dialog.currentTotal")}{" "}
 									<span className="font-medium">
-										{new Intl.NumberFormat("en-EG", {
+										{new Intl.NumberFormat(i18n.language === "ar" ? "ar-EG" : "en-EG", {
 											style: "currency",
 											currency: "EGP",
 											minimumFractionDigits: 2,

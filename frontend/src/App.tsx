@@ -4,7 +4,10 @@ import {
 	Route,
 	Navigate,
 } from "react-router-dom";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { LanguageProvider } from "@/context/LanguageContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Login from "@/pages/Login";
@@ -12,17 +15,25 @@ import Register from "@/pages/Register";
 import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
 import Patients from "@/pages/Patients";
+import PatientDetails from "@/pages/PatientDetails";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
 function App() {
+	const { i18n } = useTranslation();
+
+	useEffect(() => {
+		document.documentElement.dir = i18n.language === "ar" ? "rtl" : "ltr";
+	}, [i18n.language]);
+
 	return (
-		<QueryClientProvider client={queryClient}>
-			<ErrorBoundary>
-				<Router>
-					<AuthProvider>
-						<Routes>
+		<LanguageProvider>
+			<QueryClientProvider client={queryClient}>
+				<ErrorBoundary>
+					<Router>
+						<AuthProvider>
+							<Routes>
 							<Route path="/login" element={<Login />} />
 							<Route path="/register" element={<Register />} />
 							<Route
@@ -49,12 +60,21 @@ function App() {
 									</ProtectedRoute>
 								}
 							/>
+							<Route
+								path="/patients/:id"
+								element={
+									<ProtectedRoute>
+										<PatientDetails />
+									</ProtectedRoute>
+								}
+							/>
 							<Route path="/" element={<Navigate to="/login" replace />} />
 						</Routes>
 					</AuthProvider>
 				</Router>
 			</ErrorBoundary>
 		</QueryClientProvider>
+		</LanguageProvider>
 	);
 }
 

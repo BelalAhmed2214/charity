@@ -8,6 +8,8 @@ export interface PatientFilters {
   per_page?: number;
   search?: string;
   status?: string;
+  sort_by?: string;
+  sort_order?: 'asc' | 'desc';
 }
 
 export const patientsApi = {
@@ -20,6 +22,8 @@ export const patientsApi = {
     if (filters.per_page) params.append('per_page', filters.per_page.toString());
     if (filters.search) params.append('search', filters.search);
     if (filters.status) params.append('status', filters.status);
+    if (filters.sort_by) params.append('sort_by', filters.sort_by);
+    if (filters.sort_order) params.append('sort_order', filters.sort_order);
 
     const response = await axios.get<ApiResponse & { patients: PaginatedResponse<Patient> }>(`${BASE_URL}?${params.toString()}`);
     return response.data;
@@ -29,7 +33,7 @@ export const patientsApi = {
    * Get a single patient by ID
    */
   get: async (id: number) => {
-    const response = await axios.get<ApiResponse<{ patient: Patient }>>(`${BASE_URL}/${id}`);
+    const response = await axios.get<ApiResponse & { patient: Patient }>(`${BASE_URL}/${id}`);
     return response.data;
   },
 
