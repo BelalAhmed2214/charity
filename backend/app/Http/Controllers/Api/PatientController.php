@@ -39,9 +39,20 @@ class PatientController extends Controller
             $query->where('status', $request->status);
         }
 
+        // Sorting
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        
+        $allowedSortColumns = ['name', 'ssn', 'phone', 'status', 'created_at', 'cost'];
+        if (in_array($sortBy, $allowedSortColumns)) {
+            $query->orderBy($sortBy, $sortOrder === 'asc' ? 'asc' : 'desc');
+        } else {
+            $query->latest();
+        }
+
         // Pagination
         $perPage = $request->get('per_page', 15);
-        $patients = $query->latest()->paginate($perPage);
+        $patients = $query->paginate($perPage);
 
         Log::info('patients.index accessed', [
             'user_id' => $request->user()->id,
@@ -116,7 +127,7 @@ class PatientController extends Controller
     /**
      * Remove the specified patient
      */
-    public function destroy(Patient $patient)
+    public function destroy(Request $request, Patient $patient)
     {
         $this->authorize('delete', $patient);
 
