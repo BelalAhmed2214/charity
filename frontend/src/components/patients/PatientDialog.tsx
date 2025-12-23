@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiErrorAlert } from "@/components/ApiErrorAlert";
+import { normalizeApiError } from "@/utils/errors";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const patientSchema = z.object({
 	name: z.string().min(1, "Name is required"),
@@ -85,6 +87,8 @@ export function PatientDialog({
 		},
 	});
 
+	// Cost history removed; consolidated into patient.cost_total
+
 	useEffect(() => {
 		if (patient) {
 			form.reset({
@@ -129,6 +133,8 @@ export function PatientDialog({
 		mutation.mutate(data);
 	};
 
+	// Cost mutation removed
+
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -143,7 +149,9 @@ export function PatientDialog({
 					</DialogDescription>
 				</DialogHeader>
 
-				{mutation.error && <ApiErrorAlert error={mutation.error} />}
+				{mutation.error && (
+					<ApiErrorAlert error={normalizeApiError(mutation.error)} />
+				)}
 
 				<Form {...form}>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -344,6 +352,33 @@ export function PatientDialog({
 						</DialogFooter>
 					</form>
 				</Form>
+
+				{patient && (
+					<div className="mt-6 space-y-4">
+						<Card>
+							<CardHeader>
+								<CardTitle>Cost Tracking</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								{/* Cost tracking form removed */}
+
+								<div className="text-sm text-muted-foreground">
+									Current Total:{" "}
+									<span className="font-medium">
+										{new Intl.NumberFormat("en-EG", {
+											style: "currency",
+											currency: "EGP",
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2,
+										}).format(patient.cost ?? 0)}
+									</span>
+								</div>
+
+								{/* Cost history removed */}
+							</CardContent>
+						</Card>
+					</div>
+				)}
 			</DialogContent>
 		</Dialog>
 	);

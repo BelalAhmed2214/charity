@@ -21,13 +21,14 @@ let failedQueue: Array<{
 	onError: (error: Error) => void;
 }> = [];
 
-const processQueue = (error?: Error) => {
+const processQueue = (token?: string, error?: Error) => {
 	failedQueue.forEach((prom) => {
 		if (error) {
 			prom.onError(error);
+		} else if (token) {
+			prom.onSuccess(token);
 		}
 	});
-
 	failedQueue = [];
 };
 
@@ -54,7 +55,9 @@ api.interceptors.response.use(
 
 			try {
 				const response = await axios.post(
-					`${import.meta.env.VITE_API_URL || "http://localhost:8000/api"}/refresh`,
+					`${
+						import.meta.env.VITE_API_URL || "http://localhost:8000/api"
+					}/refresh`,
 					{},
 					{
 						headers: {
@@ -69,10 +72,10 @@ api.interceptors.response.use(
 				api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
 				originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
 
-				processQueue();
+				processQueue(newToken);
 				return api(originalRequest);
 			} catch (refreshError) {
-				processQueue(refreshError as Error);
+				processQueue(undefined, refreshError as Error);
 				localStorage.removeItem("auth_token");
 				window.location.href = "/login";
 				return Promise.reject(normalizeApiError(refreshError));

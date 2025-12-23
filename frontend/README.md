@@ -59,3 +59,14 @@ pnpm lint
 - `src/lib`: Utility functions and configurations
 - `src/hooks`: Custom React hooks
 - `src/api`: API integration and services
+
+## Configuration
+- Set `VITE_API_URL` to your backend API base (e.g. `http://localhost:8000/api`).
+- Tokens are stored in `localStorage` (`auth_token`) and attached automatically.
+
+## MVP Demo Checklist
+- Register a new user or login with existing credentials.
+- Navigate to Dashboard → Patients.
+- Use search and status filter; paginate through results.
+- Add a patient with the dialog; edit an existing record.
+- Check Profile and logout; login again to verify refresh flow.

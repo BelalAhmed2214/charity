@@ -66,6 +66,7 @@ export interface Patient {
 	address: string | null;
 	diagnosis: string | null;
 	solution: string | null;
+	cost: number;
 	created_at: string;
 	updated_at: string;
 	user?: Pick<User, "id" | "name" | "phone">;
