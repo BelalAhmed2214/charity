@@ -23,13 +23,14 @@ class UpdatePatientRequest extends FormRequest
         $patientId = $this->route('patient')->id;
 
         return [
+            'user_id' => ['prohibited'],
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'ssn' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('patients', 'ssn')->ignore($patientId)],
             'age' => ['nullable', 'integer', 'min:0', 'max:150'],
             'phone' => ['nullable', 'string', 'max:20'],
             'martial_status' => ['nullable', 'in:single,married,divorced,widowed'],
             'status' => ['nullable', 'in:pending,complete'],
-            'childrens' => ['nullable', 'integer', 'min:0'],
+            'children' => ['nullable', 'integer', 'min:0'],
             'governorate' => ['nullable', 'string', 'max:255'],
             'address' => ['nullable', 'string'],
             'diagnosis' => ['nullable', 'string'],
@@ -51,7 +52,7 @@ class UpdatePatientRequest extends FormRequest
             'age.max' => 'Age cannot exceed 150',
             'martial_status.in' => 'Invalid marital status',
             'status.in' => 'Invalid status',
-            'childrens.min' => 'Number of children cannot be negative',
+            'children.min' => 'Number of children cannot be negative',
             'cost.min' => 'Cost must be zero or positive',
         ];
     }
@@ -61,10 +62,9 @@ class UpdatePatientRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        // Auto-assign user_id to authenticated user if not provided
-        if (!$this->has('user_id')) {
+        if ($this->has('childrens') && !$this->has('children')) {
             $this->merge([
-                'user_id' => auth()->id(),
+                'children' => $this->input('childrens'),
             ]);
         }
     }

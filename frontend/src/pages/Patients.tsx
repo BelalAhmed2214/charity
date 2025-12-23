@@ -134,6 +134,8 @@ export default function Patients() {
 							<TableHead>Name</TableHead>
 							<TableHead>SSN</TableHead>
 							<TableHead>Phone</TableHead>
+							<TableHead>Created By</TableHead>
+							<TableHead>Created At</TableHead>
 							<TableHead>Status</TableHead>
 							<TableHead>Actions</TableHead>
 						</TableRow>
@@ -157,6 +159,23 @@ export default function Patients() {
 									<TableCell className="font-medium">{patient.name}</TableCell>
 									<TableCell>{patient.ssn}</TableCell>
 									<TableCell>{patient.phone}</TableCell>
+									<TableCell>
+										<div className="flex flex-col">
+											<span className="font-medium">
+												{patient.user?.name || "Unknown"}
+											</span>
+											<span className="text-xs text-muted-foreground">
+												{patient.user?.email || patient.user?.phone || "N/A"}
+											</span>
+										</div>
+									</TableCell>
+									<TableCell>
+										<span className="text-sm text-muted-foreground">
+											{patient.created_at
+												? new Date(patient.created_at).toLocaleString()
+												: "—"}
+										</span>
+									</TableCell>
 									<TableCell>
 										<span
 											className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${

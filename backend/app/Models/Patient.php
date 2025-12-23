@@ -15,7 +15,7 @@ class Patient extends Model
         'phone',
         'martial_status',
         'status',
-        'childrens',
+        'children',
         'governorate',
         'address',
         'diagnosis',

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->enum('martial_status', ['single', 'married', 'divorced', 'widowed'])->nullable();
             $table->enum('status', ['pending', 'complete'])->nullable()->default("pending");
-            $table->integer('childrens')->default(0);
+            $table->integer('children')->default(0);
             $table->string('governorate')->nullable();
             $table->text('address')->nullable();
             $table->text('diagnosis')->nullable();

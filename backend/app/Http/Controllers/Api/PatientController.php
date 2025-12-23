@@ -8,6 +8,8 @@ use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class PatientController extends Controller
 {
@@ -20,7 +22,7 @@ class PatientController extends Controller
     {
         $this->authorize('viewAny', Patient::class);
 
-        $query = Patient::with('user:id,name,phone');
+        $query = Patient::with('user:id,name,phone,email');
 
         // Search by name, SSN, or phone
         if ($request->has('search')) {
@@ -37,19 +39,14 @@ class PatientController extends Controller
             $query->where('status', $request->status);
         }
 
-        // Filter by user_id (for admins viewing specific user's patients)
-        if ($request->has('user_id') && $request->user()->role === 'admin') {
-            $query->where('user_id', $request->user_id);
-        }
-
-        // Regular users can only see their own patients
-        if ($request->user()->role !== 'admin') {
-            $query->where('user_id', $request->user()->id);
-        }
-
         // Pagination
         $perPage = $request->get('per_page', 15);
         $patients = $query->latest()->paginate($perPage);
+
+        Log::info('patients.index accessed', [
+            'user_id' => $request->user()->id,
+            'params' => $request->only(['search', 'status', 'page', 'per_page']),
+        ]);
 
         return $this->returnData('patients', $patients, 'Patients retrieved successfully');
     }
@@ -61,8 +58,17 @@ class PatientController extends Controller
     {
         $this->authorize('create', Patient::class);
 
-        $patient = Patient::create($request->validated());
-        $patient->load('user:id,name,phone');
+        $data = $request->validated();
+        // Enforce creator association server-side
+        $data['user_id'] = $request->user()->id;
+
+        $patient = Patient::create($data);
+        $patient->load('user:id,name,phone,email');
+
+        Log::info('patients.store', [
+            'user_id' => $request->user()->id,
+            'patient_id' => $patient->id,
+        ]);
 
         return $this->returnData('patient', $patient, 'Patient created successfully', 201);
     }
@@ -74,7 +80,12 @@ class PatientController extends Controller
     {
         $this->authorize('view', $patient);
 
-        $patient->load('user:id,name,phone');
+        $patient->load('user:id,name,phone,email');
+
+        Log::info('patients.show accessed', [
+            'user_id' => request()->user()->id,
+            'patient_id' => $patient->id,
+        ]);
 
         return $this->returnData('patient', $patient, 'Patient retrieved successfully');
     }
@@ -86,8 +97,18 @@ class PatientController extends Controller
     {
         $this->authorize('update', $patient);
 
-        $patient->update($request->validated());
-        $patient->load('user:id,name,phone');
+        $data = $request->validated();
+        // Prevent changing creator
+        unset($data['user_id']);
+
+        $patient->update($data);
+        $patient->load('user:id,name,phone,email');
+
+        Log::info('patients.update', [
+            'user_id' => $request->user()->id,
+            'patient_id' => $patient->id,
+            'payload' => $data,
+        ]);
 
         return $this->returnData('patient', $patient, 'Patient updated successfully');
     }
@@ -100,6 +121,11 @@ class PatientController extends Controller
         $this->authorize('delete', $patient);
 
         $patient->delete();
+
+        Log::info('patients.destroy', [
+            'user_id' => $request->user()->id,
+            'patient_id' => $patient->id,
+        ]);
 
         return $this->returnSuccess('Patient deleted successfully');
     }

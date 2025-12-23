@@ -61,7 +61,7 @@ export interface Patient {
 	phone: string | null;
 	martial_status: "single" | "married" | "divorced" | "widowed" | null;
 	status: "pending" | "complete" | null;
-	childrens: number | null;
+	children: number | null;
 	governorate: string | null;
 	address: string | null;
 	diagnosis: string | null;
@@ -69,7 +69,7 @@ export interface Patient {
 	cost: number;
 	created_at: string;
 	updated_at: string;
-	user?: Pick<User, "id" | "name" | "phone">;
+	user?: Pick<User, "id" | "name" | "phone" | "email">;
 }
 
 /**

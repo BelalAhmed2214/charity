@@ -17,7 +17,7 @@ export interface Patient {
 	phone: string;
 	martial_status: string;
 	status: string;
-	childrens: number;
+	children: number;
 	governorate: string;
 	address: string;
 	diagnosis: string;

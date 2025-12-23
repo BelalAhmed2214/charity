@@ -47,7 +47,7 @@ const patientSchema = z.object({
 		.enum(["single", "married", "divorced", "widowed"])
 		.optional(),
 	status: z.enum(["pending", "complete"]),
-	childrens: z.coerce.number().min(0).optional(),
+	children: z.coerce.number().min(0).optional(),
 	governorate: z.string().optional(),
 	address: z.string().optional(),
 	diagnosis: z.string().optional(),
@@ -80,12 +80,12 @@ export function PatientDialog({
 			age: 0,
 			martial_status: "single",
 			status: "pending",
-			childrens: 0,
+			children: 0,
 			governorate: "",
 			address: "",
 			diagnosis: "",
 			solution: "",
-		cost: undefined,
+			cost: undefined,
 		},
 	});
 
@@ -100,7 +100,7 @@ export function PatientDialog({
 				age: patient.age || undefined,
 				martial_status: patient.martial_status || undefined,
 				status: patient.status || "pending",
-				childrens: patient.childrens || 0,
+				children: patient.children ?? 0,
 				governorate: patient.governorate || "",
 				address: patient.address || "",
 				diagnosis: patient.diagnosis || "",
@@ -113,7 +113,7 @@ export function PatientDialog({
 				ssn: "",
 				phone: "",
 				status: "pending",
-				childrens: 0,
+				children: 0,
 				cost: undefined,
 			});
 		}
@@ -152,6 +152,23 @@ export function PatientDialog({
 							: "Enter the details for the new patient record."}
 					</DialogDescription>
 				</DialogHeader>
+
+				{patient && (
+					<div className="rounded-md border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+						<div className="font-medium text-foreground">Created By</div>
+						<div className="flex flex-col">
+							<span>{patient.user?.name ?? "Unknown"}</span>
+							<span className="text-xs">
+								{patient.user?.email ?? patient.user?.phone ?? "N/A"}
+							</span>
+							<span className="text-xs">
+								{patient.created_at
+									? new Date(patient.created_at).toLocaleString()
+									: "—"}
+							</span>
+						</div>
+					</div>
+				)}
 
 				{mutation.error && (
 					<ApiErrorAlert error={normalizeApiError(mutation.error)} />
@@ -244,7 +261,7 @@ export function PatientDialog({
 
 							<FormField
 								control={form.control}
-								name="childrens"
+								name="children"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Children Count</FormLabel>
