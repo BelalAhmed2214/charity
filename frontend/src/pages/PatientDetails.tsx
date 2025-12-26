@@ -16,8 +16,8 @@ import { ApiErrorAlert } from "@/components/ApiErrorAlert";
 import { normalizeApiError } from "@/utils/errors";
 import { useState } from "react";
 import { PatientDialog } from "@/components/patients/PatientDialog";
+import { InlineEdit } from "@/components/InlineEdit";
 import type { Patient } from "@/types/api";
-import { detectDir, alignClass } from "@/lib/dir";
 
 export default function PatientDetails() {
 	const { id } = useParams<{ id: string }>();
@@ -46,10 +46,56 @@ export default function PatientDetails() {
 		},
 	});
 
+	const updateDiagnosisMutation = useMutation({
+		mutationFn: (diagnosis: string) => {
+			if (!patient) throw new Error("Patient not found");
+			const { user_id, user, created_at, updated_at, ...updateData } = patient;
+			return patientsApi.update(patient.id, {
+				...updateData,
+				diagnosis,
+			});
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["patient", id] });
+		},
+	});
+
+	const updateSolutionMutation = useMutation({
+		mutationFn: (solution: string) => {
+			if (!patient) throw new Error("Patient not found");
+			const { user_id, user, created_at, updated_at, ...updateData } = patient;
+			return patientsApi.update(patient.id, {
+				...updateData,
+				solution,
+			});
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["patient", id] });
+		},
+	});
+
 	const handleComplete = () => {
 		if (data?.patient) {
 			completeMutation.mutate(data.patient);
 		}
+	};
+
+	const handleDiagnosisSave = async (diagnosis: string) => {
+		return new Promise<void>((resolve, reject) => {
+			updateDiagnosisMutation.mutate(diagnosis, {
+				onSuccess: () => resolve(),
+				onError: (error) => reject(error),
+			});
+		});
+	};
+
+	const handleSolutionSave = async (solution: string) => {
+		return new Promise<void>((resolve, reject) => {
+			updateSolutionMutation.mutate(solution, {
+				onSuccess: () => resolve(),
+				onError: (error) => reject(error),
+			});
+		});
 	};
 
 	const formatNumber = (val: string | number | null | undefined) => {
@@ -174,19 +220,25 @@ export default function PatientDetails() {
 								<div className="text-sm font-medium text-muted-foreground">
 									{t("patients.table.ssn")}
 								</div>
-								<div className="text-lg font-medium">{formatNumber(patient.ssn)}</div>
+								<div className="text-lg font-medium">
+									{formatNumber(patient.ssn)}
+								</div>
 							</div>
 							<div>
 								<div className="text-sm font-medium text-muted-foreground">
 									{t("patients.table.phone")}
 								</div>
-								<div className="text-lg font-medium">{formatNumber(patient.phone)}</div>
+								<div className="text-lg font-medium">
+									{formatNumber(patient.phone)}
+								</div>
 							</div>
 							<div>
 								<div className="text-sm font-medium text-muted-foreground">
 									{t("patients.dialog.form.age")}
 								</div>
-								<div className="text-lg font-medium">{formatNumber(patient.age)}</div>
+								<div className="text-lg font-medium">
+									{formatNumber(patient.age)}
+								</div>
 							</div>
 							<div>
 								<div className="text-sm font-medium text-muted-foreground">
@@ -194,7 +246,9 @@ export default function PatientDetails() {
 								</div>
 								<div className="text-lg font-medium">
 									{patient.martial_status
-										? t(`patients.dialog.form.marital.${patient.martial_status}`)
+										? t(
+												`patients.dialog.form.marital.${patient.martial_status}`
+										  )
 										: t("common.na")}
 								</div>
 							</div>
@@ -202,19 +256,25 @@ export default function PatientDetails() {
 								<div className="text-sm font-medium text-muted-foreground">
 									{t("patients.dialog.form.children")}
 								</div>
-								<div className="text-lg font-medium">{formatNumber(patient.children)}</div>
+								<div className="text-lg font-medium">
+									{formatNumber(patient.children)}
+								</div>
 							</div>
 							<div className="col-span-2">
 								<div className="text-sm font-medium text-muted-foreground">
 									{t("patients.dialog.form.address")}
 								</div>
-								<div className="text-lg font-medium">{patient.address || t("common.na")}</div>
+								<div className="text-lg font-medium">
+									{patient.address || t("common.na")}
+								</div>
 							</div>
 							<div className="col-span-2">
 								<div className="text-sm font-medium text-muted-foreground">
 									{t("patients.dialog.form.governorate")}
 								</div>
-								<div className="text-lg font-medium">{patient.governorate || t("common.na")}</div>
+								<div className="text-lg font-medium">
+									{patient.governorate || t("common.na")}
+								</div>
 							</div>
 						</div>
 					</CardContent>
@@ -226,31 +286,23 @@ export default function PatientDetails() {
 							<CardTitle>{t("patients.details.medicalInfo")}</CardTitle>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							<div>
-								<div className="text-sm font-medium text-muted-foreground">
-									{t("patients.dialog.form.diagnosis")}
-								</div>
-								<div
-									className={`text-lg font-medium min-h-[1.75rem] ${alignClass(
-										detectDir(patient.diagnosis)
-									)}`}
-									dir={detectDir(patient.diagnosis)}
-									style={{ unicodeBidi: "plaintext" }}>
-									{patient.diagnosis || t("common.na")}
-								</div>
-							</div>
-							<div>
-								<div className="text-sm font-medium text-muted-foreground">
-									{t("patients.dialog.form.solution")}
-								</div>
-								<div
-									className={`text-lg font-medium min-h-[1.75rem] ${alignClass(
-										detectDir(patient.solution)
-									)}`}
-									dir={detectDir(patient.solution)}
-									style={{ unicodeBidi: "plaintext" }}>
-									{patient.solution || t("common.na")}
-								</div>
+							<InlineEdit
+								value={patient.diagnosis}
+								onSave={handleDiagnosisSave}
+								label={t("patients.dialog.form.diagnosis")}
+								placeholder={t("patients.dialog.form.diagnosis")}
+								isLoading={updateDiagnosisMutation.isPending}
+								rows={4}
+							/>
+							<div className="border-t pt-4">
+								<InlineEdit
+									value={patient.solution}
+									onSave={handleSolutionSave}
+									label={t("patients.dialog.form.solution")}
+									placeholder={t("patients.dialog.form.solution")}
+									isLoading={updateSolutionMutation.isPending}
+									rows={4}
+								/>
 							</div>
 						</CardContent>
 					</Card>
