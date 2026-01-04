@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Resources\Api\UserResource;
 use App\Models\User;
+use App\Services\UserService;
 use App\Traits\ResponseTrait;
-use App\UserRole;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
@@ -16,23 +16,22 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     use ResponseTrait;
+    public function __construct(
+        private UserService $service
+    ){}
 
-    public function register(StoreUserRequest $request)
+    public function register(StoreUserRequest $request) // Create user
     {
         $this->authorize('create', User::class);
+        $storeResponse = $this->service->store($request->validated());
 
-        $user = User::create([
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'email' => $request->email ?? null,
-            'password' => Hash::make($request->password),
-            'role' => $request->role ?? UserRole::USER,
-        ]);
-        $token = $user->createToken('auth-token')->plainTextToken;
+        if (!$storeResponse['success']) {
+            return $this->returnError($storeResponse['message']);
+        }
 
         return $this->returnData('data', [
-            'user' => new UserResource($user),
-            'token' => $token,
+            'user' => new UserResource($storeResponse['user']),
+//            'token' => $token,
             'token_type' => 'Bearer',
         ], 'User registered successfully', Response::HTTP_CREATED);
     }

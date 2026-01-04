@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\UserRole;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 
 class StoreUserRequest extends FormRequest
 {
@@ -40,7 +42,7 @@ class StoreUserRequest extends FormRequest
                 Rule::unique('users', 'email'),
             ],
             'password' => ['required', 'string', 'min:8'],
-            'role' => ['nullable', 'string', Rule::in(['user', 'admin'])],
+            'role' => ['nullable', 'string', new Enum(UserRole::class)],
         ];
     }
 
