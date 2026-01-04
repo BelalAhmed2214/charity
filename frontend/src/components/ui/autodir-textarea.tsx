@@ -27,7 +27,9 @@ export const AutoDirTextarea = React.forwardRef<HTMLTextAreaElement, Props>(
 		const mergedRef = (node: HTMLTextAreaElement | null) => {
 			internalRef.current = node;
 			if (typeof ref === "function") ref(node);
-			else if (ref) (ref as React.MutableRefObject<HTMLTextAreaElement | null>).current = node;
+			else if (ref)
+				(ref as React.MutableRefObject<HTMLTextAreaElement | null>).current =
+					node;
 		};
 
 		const [dir, setDir] = React.useState<TextDir>(fallbackDir);
@@ -54,7 +56,9 @@ export const AutoDirTextarea = React.forwardRef<HTMLTextAreaElement, Props>(
 			onChange?.(v);
 		};
 
-		const handlePaste: React.ClipboardEventHandler<HTMLTextAreaElement> = (e) => {
+		const handlePaste: React.ClipboardEventHandler<HTMLTextAreaElement> = (
+			e
+		) => {
 			const pasted = e.clipboardData.getData("text");
 			if (pasted) updateDir(pasted);
 		};

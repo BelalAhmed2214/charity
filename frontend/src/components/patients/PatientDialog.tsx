@@ -147,7 +147,9 @@ export function PatientDialog({
 			<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>
-						{isEditing ? t("patients.dialog.editTitle") : t("patients.dialog.addTitle")}
+						{isEditing
+							? t("patients.dialog.editTitle")
+							: t("patients.dialog.addTitle")}
 					</DialogTitle>
 					<DialogDescription>
 						{isEditing
@@ -158,7 +160,9 @@ export function PatientDialog({
 
 				{patient && (
 					<div className="rounded-md border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
-						<div className="font-medium text-foreground">{t("patients.table.createdBy")}</div>
+						<div className="font-medium text-foreground">
+							{t("patients.table.createdBy")}
+						</div>
 						<div className="flex flex-col">
 							<span>{patient.user?.name ?? t("common.unknown")}</span>
 							<span className="text-xs">
@@ -187,7 +191,12 @@ export function PatientDialog({
 									<FormItem>
 										<FormLabel>{t("patients.dialog.form.fullName")}</FormLabel>
 										<FormControl>
-											<Input placeholder={t("patients.dialog.form.placeholders.fullName")} {...field} />
+											<Input
+												placeholder={t(
+													"patients.dialog.form.placeholders.fullName"
+												)}
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -201,7 +210,10 @@ export function PatientDialog({
 									<FormItem>
 										<FormLabel>{t("patients.dialog.form.ssn")}</FormLabel>
 										<FormControl>
-											<Input placeholder={t("patients.dialog.form.placeholders.ssn")} {...field} />
+											<Input
+												placeholder={t("patients.dialog.form.placeholders.ssn")}
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -215,7 +227,12 @@ export function PatientDialog({
 									<FormItem>
 										<FormLabel>{t("patients.dialog.form.phone")}</FormLabel>
 										<FormControl>
-											<Input placeholder={t("patients.dialog.form.placeholders.phone")} {...field} />
+											<Input
+												placeholder={t(
+													"patients.dialog.form.placeholders.phone"
+												)}
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -241,20 +258,32 @@ export function PatientDialog({
 								name="martial_status"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("patients.dialog.form.maritalStatus")}</FormLabel>
+										<FormLabel>
+											{t("patients.dialog.form.maritalStatus")}
+										</FormLabel>
 										<Select
 											onValueChange={field.onChange}
 											defaultValue={field.value}>
 											<FormControl>
 												<SelectTrigger>
-													<SelectValue placeholder={t("patients.dialog.form.selectStatus")} />
+													<SelectValue
+														placeholder={t("patients.dialog.form.selectStatus")}
+													/>
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												<SelectItem value="single">{t("patients.dialog.form.marital.single")}</SelectItem>
-												<SelectItem value="married">{t("patients.dialog.form.marital.married")}</SelectItem>
-												<SelectItem value="divorced">{t("patients.dialog.form.marital.divorced")}</SelectItem>
-												<SelectItem value="widowed">{t("patients.dialog.form.marital.widowed")}</SelectItem>
+												<SelectItem value="single">
+													{t("patients.dialog.form.marital.single")}
+												</SelectItem>
+												<SelectItem value="married">
+													{t("patients.dialog.form.marital.married")}
+												</SelectItem>
+												<SelectItem value="divorced">
+													{t("patients.dialog.form.marital.divorced")}
+												</SelectItem>
+												<SelectItem value="widowed">
+													{t("patients.dialog.form.marital.widowed")}
+												</SelectItem>
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -305,9 +334,16 @@ export function PatientDialog({
 								name="governorate"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>{t("patients.dialog.form.governorate")}</FormLabel>
+										<FormLabel>
+											{t("patients.dialog.form.governorate")}
+										</FormLabel>
 										<FormControl>
-											<Input placeholder={t("patients.dialog.form.placeholders.governorate")} {...field} />
+											<Input
+												placeholder={t(
+													"patients.dialog.form.placeholders.governorate"
+												)}
+												{...field}
+											/>
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -325,12 +361,18 @@ export function PatientDialog({
 											defaultValue={field.value}>
 											<FormControl>
 												<SelectTrigger>
-													<SelectValue placeholder={t("patients.dialog.form.selectStatus")} />
+													<SelectValue
+														placeholder={t("patients.dialog.form.selectStatus")}
+													/>
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												<SelectItem value="pending">{t("patients.pending")}</SelectItem>
-												<SelectItem value="complete">{t("patients.complete")}</SelectItem>
+												<SelectItem value="pending">
+													{t("patients.pending")}
+												</SelectItem>
+												<SelectItem value="complete">
+													{t("patients.complete")}
+												</SelectItem>
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -346,7 +388,12 @@ export function PatientDialog({
 								<FormItem>
 									<FormLabel>{t("patients.dialog.form.address")}</FormLabel>
 									<FormControl>
-										<Textarea placeholder={t("patients.dialog.form.placeholders.address")} {...field} />
+										<Textarea
+											placeholder={t(
+												"patients.dialog.form.placeholders.address"
+											)}
+											{...field}
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -361,7 +408,9 @@ export function PatientDialog({
 									<FormLabel>{t("patients.dialog.form.diagnosis")}</FormLabel>
 									<FormControl>
 										<Textarea
-											placeholder={t("patients.dialog.form.placeholders.diagnosis")}
+											placeholder={t(
+												"patients.dialog.form.placeholders.diagnosis"
+											)}
 											{...field}
 										/>
 									</FormControl>
@@ -377,7 +426,12 @@ export function PatientDialog({
 								<FormItem>
 									<FormLabel>{t("patients.dialog.form.solution")}</FormLabel>
 									<FormControl>
-										<Textarea placeholder={t("patients.dialog.form.placeholders.solution")} {...field} />
+										<Textarea
+											placeholder={t(
+												"patients.dialog.form.placeholders.solution"
+											)}
+											{...field}
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -395,7 +449,9 @@ export function PatientDialog({
 								{mutation.isPending && (
 									<span className="mr-2 h-4 w-4 animate-spin">⏳</span>
 								)}
-								{isEditing ? t("patients.dialog.form.update") : t("patients.dialog.form.create")}
+								{isEditing
+									? t("patients.dialog.form.update")
+									: t("patients.dialog.form.create")}
 							</Button>
 						</DialogFooter>
 					</form>
@@ -413,12 +469,15 @@ export function PatientDialog({
 								<div className="text-sm text-muted-foreground">
 									{t("patients.dialog.currentTotal")}{" "}
 									<span className="font-medium">
-										{new Intl.NumberFormat(i18n.language === "ar" ? "ar-EG" : "en-EG", {
-											style: "currency",
-											currency: "EGP",
-											minimumFractionDigits: 2,
-											maximumFractionDigits: 2,
-										}).format(patient.cost ?? 0)}
+										{new Intl.NumberFormat(
+											i18n.language === "ar" ? "ar-EG" : "en-EG",
+											{
+												style: "currency",
+												currency: "EGP",
+												minimumFractionDigits: 2,
+												maximumFractionDigits: 2,
+											}
+										).format(patient.cost ?? 0)}
 									</span>
 								</div>
 
