@@ -21,9 +21,8 @@ class PatientController extends Controller
     public function index(Request $request)
     {
         $this->authorize('viewAny', Patient::class);
-
         $query = Patient::with('user:id,name,phone,email');
-
+        
         // Search by name, SSN, or phone
         if ($request->has('search')) {
             $search = $request->search;

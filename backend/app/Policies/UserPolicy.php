@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\UserRole;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class UserPolicy
@@ -15,7 +16,7 @@ class UserPolicy
     public function viewAny(User $user): bool
     {
         // Only admins can list all users
-        return $user->role === 'admin';
+        return $user->role === UserRole::ADMIN;
     }
 
     /**
@@ -24,7 +25,7 @@ class UserPolicy
     public function view(User $user, User $model): bool
     {
         // Admins can view any user, regular users can only view themselves
-        return $user->role === 'admin' || $user->id === $model->id;
+        return $user->role === UserRole::ADMIN || $user->id === $model->id;
     }
 
     /**
@@ -33,7 +34,7 @@ class UserPolicy
     public function create(User $user): bool
     {
         // Only admins can create new users
-        return $user->role === 'admin';
+        return $user->role === UserRole::ADMIN;
     }
 
     /**
@@ -42,10 +43,10 @@ class UserPolicy
     public function update(User $user, User $model): bool
     {
         // Admins can update any user, regular users can only update themselves
-        if ($user->role === 'admin') {
+        if ($user->role === UserRole::ADMIN) {
             return true;
         }
-        
+
         // Users can update themselves, but cannot change their own role
         if ($user->id === $model->id) {
             // If trying to change role, deny
@@ -54,7 +55,7 @@ class UserPolicy
             }
             return true;
         }
-        
+
         return false;
     }
 
@@ -65,7 +66,7 @@ class UserPolicy
     {
         // Only admins can delete users
         // Prevent admins from deleting themselves
-        return $user->role === 'admin' && $user->id !== $model->id;
+        return $user->role === UserRole::ADMIN && $user->id !== $model->id;
     }
 
     /**

@@ -28,22 +28,22 @@ class DatabaseSeeder extends Seeder
             'name' => 'Ahmed',
             'email' => 'ahmed@gmail.com',
             'phone' => '01203376448',
-            // 'role' => 'Admin',
+            'role' => 'user',
             'password' => '123456'
         ]);
-        User::create([
-            'name' => 'Omar',
-            'email' => 'omar@gmail.com',
-            'phone' => '01203376447',
-            // 'role' => 'user',
-            'password' => '123456'
-        ]);
-        User::create([
-            'name' => 'Hazem',
-            'email' => 'hazem@gmail.com',
-            'phone' => '01203376446',
-            // 'role' => 'user',
-            'password' => '123456'
-        ]);
+        // User::create([
+        //     'name' => 'Omar',
+        //     'email' => 'omar@gmail.com',
+        //     'phone' => '01203376447',
+        //     // 'role' => 'user',
+        //     'password' => '123456'
+        // ]);
+        // User::create([
+        //     'name' => 'Hazem',
+        //     'email' => 'hazem@gmail.com',
+        //     'phone' => '01203376446',
+        //     // 'role' => 'user',
+        //     'password' => '123456'
+        // ]);
     }
 }

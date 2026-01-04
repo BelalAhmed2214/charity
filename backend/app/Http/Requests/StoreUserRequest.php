@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class StoreUserRequest extends FormRequest
@@ -30,7 +31,7 @@ class StoreUserRequest extends FormRequest
                 'string',
                 'max:20',
                 Rule::unique('users', 'phone'),
-                'regex:/^[0-9+\-\s()]+$/', // Basic phone validation
+                'regex:/^(010|011|012|015)[0-9]{8}$/',
             ],
             'email' => [
                 'nullable',
@@ -38,7 +39,7 @@ class StoreUserRequest extends FormRequest
                 'max:255',
                 Rule::unique('users', 'email'),
             ],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:8'],
             'role' => ['nullable', 'string', Rule::in(['user', 'admin'])],
         ];
     }
@@ -53,7 +54,7 @@ class StoreUserRequest extends FormRequest
         return [
             'phone.required' => 'Phone number is required.',
             'phone.unique' => 'This phone number is already registered.',
-            'phone.regex' => 'Please enter a valid phone number.',
+            'phone.regex' => 'Please enter a valid Egyptian mobile number (010, 011, 012, 015).',
             'email.unique' => 'This email is already registered.',
             'password.min' => 'Password must be at least 8 characters.',
             'password.confirmed' => 'Password confirmation does not match.',

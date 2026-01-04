@@ -19,7 +19,7 @@ class UserController extends Controller
     public function index()
     {
         $this->authorize('viewAny', User::class);
-        
+
         $users = User::all();
         if ($users->isEmpty()) {
             return $this->returnError("There is no users");
@@ -30,13 +30,13 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserRequest $request)
-    {
-        $this->authorize('create', User::class);
-        
-        $user = User::create($request->validated());
-        return $this->returnData("user", $user, "User created Successfully", Response::HTTP_CREATED);
-    }
+    // public function store(StoreUserRequest $request)
+    // {
+    //     $this->authorize('create', User::class);
+
+    //     $user = User::create($request->validated());
+    //     return $this->returnData("user", $user, "User created Successfully", Response::HTTP_CREATED);
+    // }
 
     /**
      * Display the specified resource.
@@ -47,9 +47,9 @@ class UserController extends Controller
         if (!$user) {
             return $this->returnError("This user not found");
         }
-        
+
         $this->authorize('view', $user);
-        
+
         return $this->returnData("user", $user, "User Data");
     }
 
@@ -62,9 +62,9 @@ class UserController extends Controller
         if (!$user) {
             return $this->returnError("This user not found");
         }
-        
+
         $this->authorize('update', $user);
-        
+
         $user->update($request->validated());
         return $this->returnData("user", $user, "User updated Successfully");
     }
@@ -78,9 +78,9 @@ class UserController extends Controller
         if (!$user) {
             return $this->returnError("This user not found");
         }
-        
+
         $this->authorize('delete', $user);
-        
+
         $user->delete();
         return $this->returnData("user", $user, "User deleted Successfully");
     }
