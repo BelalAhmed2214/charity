@@ -16,25 +16,11 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     use ResponseTrait;
-    public function __construct(
-        private UserService $service
-    ){}
+    // public function __construct(
+    //     private UserService $service
+    // ) {}
 
-    public function register(StoreUserRequest $request) // Create user
-    {
-        $this->authorize('create', User::class);
-        $storeResponse = $this->service->store($request->validated());
 
-        if (!$storeResponse['success']) {
-            return $this->returnError($storeResponse['message']);
-        }
-
-        return $this->returnData('data', [
-            'user' => new UserResource($storeResponse['user']),
-//            'token' => $token,
-            'token_type' => 'Bearer',
-        ], 'User registered successfully', Response::HTTP_CREATED);
-    }
 
     public function login(Request $request)
     {
@@ -71,17 +57,4 @@ class AuthController extends Controller
     {
         return $this->returnData('user', $request->user(), 'User data retrieved successfully');
     }
-
-    // public function refresh(Request $request)
-    // {
-    //     $user = $request->user();
-    //     $user->currentAccessToken()->delete();
-
-    //     $token = $user->createToken('auth-token')->plainTextToken;
-
-    //     return $this->returnData('data', [
-    //         'token' => $token,
-    //         'token_type' => 'Bearer',
-    //     ], 'Token refreshed successfully');
-    // }
 }

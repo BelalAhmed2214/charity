@@ -12,8 +12,9 @@ use Illuminate\Support\Facades\Route;
 // Protected routes (authentication required)
 // Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 
-//     // User management
-//     Route::apiResource('users', UserController::class);
+// User management
+Route::apiResource('users', UserController::class)->middleware(["force.password.change", "auth:sanctum"]);
+Route::post('change_password/{user}', [UserController::class, "changePassword"]);
 
 //     // Patient management
 //     Route::apiResource('patients', PatientController::class);
@@ -26,7 +27,6 @@ use Illuminate\Support\Facades\Route;
 Route::group(["prefix" => 'auth'], function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::middleware(["auth:sanctum"])->group(function () {
-        Route::post('/register', [AuthController::class, 'register']);
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/user', [AuthController::class, 'user']);
     });

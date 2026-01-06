@@ -5,13 +5,17 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\Api\UserResource;
 use App\Models\User;
+use App\Services\UserService;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
+    public function __construct(private UserService $service) {}
     use ResponseTrait;
     /**
      * Display a listing of the resource.
@@ -30,13 +34,19 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    // public function store(StoreUserRequest $request)
-    // {
-    //     $this->authorize('create', User::class);
+    public function store(StoreUserRequest $request) // Create user
+    {
+        $this->authorize('create', User::class);
+        $storeResponse = $this->service->store($request->validated());
 
-    //     $user = User::create($request->validated());
-    //     return $this->returnData("user", $user, "User created Successfully", Response::HTTP_CREATED);
-    // }
+        if (!$storeResponse['success']) {
+            return $this->returnError($storeResponse['message']);
+        }
+
+        return $this->returnData('data', [
+            'user' => new UserResource($storeResponse['user']),
+        ], 'User Created successfully', Response::HTTP_CREATED);
+    }
 
     /**
      * Display the specified resource.
@@ -68,7 +78,19 @@ class UserController extends Controller
         $user->update($request->validated());
         return $this->returnData("user", $user, "User updated Successfully");
     }
-
+    public function changePassword(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'old_password' => ['required', 'string', 'min:8'],
+            'new_password' =>  ['required', 'string', 'min:8']
+        ]);
+        if (!Hash::check($validated['old_password'], $user->password)) {
+            return $this->returnError("Old Password is Incorrect", Response::HTTP_UNAUTHORIZED);
+        }
+        $user->must_change_password = false;
+        $user->password = $validated['new_password'];
+        return $this->returnSuccess("Password Updated Successfully", Response::HTTP_OK);
+    }
     /**
      * Remove the specified resource from storage.
      */

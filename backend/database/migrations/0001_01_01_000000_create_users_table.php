@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('role')->default(UserRole::USER);
             $table->string('email')->nullable()->unique();
             $table->string('password');
+            $table->boolean('must_change_password')->default(true);
             $table->rememberToken();
             $table->timestamps();
         });
