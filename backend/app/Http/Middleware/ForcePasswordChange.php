@@ -18,10 +18,11 @@ class ForcePasswordChange
     public function handle(Request $request, Closure $next): Response
     {
         $user = auth('api')->user();
+        // dd($user);
         if ($user && $user->must_change_password) {
             return $this->returnError("You must change your password", Response::HTTP_UNAUTHORIZED);
         }
-        
+
         return $next($request);
     }
 }

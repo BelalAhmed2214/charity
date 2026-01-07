@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StorePatientRequest extends FormRequest
 {
@@ -11,7 +12,7 @@ class StorePatientRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // Authorization handled by policy
+        return true;
     }
 
     /**
@@ -20,19 +21,24 @@ class StorePatientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['prohibited'], // creator is set server-side
             'name' => ['required', 'string', 'max:255'],
-            'ssn' => ['required', 'string', 'unique:patients,ssn', 'max:255'],
-            'age' => ['nullable', 'integer', 'min:0', 'max:150'],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'martial_status' => ['nullable', 'in:single,married,divorced,widowed'],
+            'ssn' => ['required', 'string', 'unique:patients,ssn', 'min:14', 'max:14'],
+            'age' => ['required', 'integer', 'min:1', 'max:150'],
+            'phone' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('patients', 'phone'),
+                'regex:/^(010|011|012|015)[0-9]{8}$/',
+            ],
+            'martial_status' => ['required', 'in:single,married,divorced,widowed'],
             'status' => ['nullable', 'in:pending,complete'],
             'children' => ['nullable', 'integer', 'min:0'],
-            'governorate' => ['nullable', 'string', 'max:255'],
-            'address' => ['nullable', 'string'],
+            'governorate' => ['required', 'string', 'max:255'],
+            'address' => ['required', 'string'],
             'diagnosis' => ['nullable', 'string'],
             'solution' => ['nullable', 'string'],
-            'cost' => ['nullable', 'numeric', 'min:0'],
+            'cost' => ['required', 'numeric', 'min:0'],
         ];
     }
 

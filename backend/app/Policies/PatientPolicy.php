@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\UserRole;
 use App\Models\Patient;
 use App\Models\User;
 
@@ -13,16 +14,15 @@ class PatientPolicy
     public function viewAny(User $user): bool
     {
         // All authenticated users can view patients (filtered in controller)
-        return true;
+        return $user->role === UserRole::ADMIN;
     }
 
     /**
      * Determine if the user can view the patient.
      */
-    public function view(User $user, Patient $patient): bool
+    public function view(User $authUser, Patient $patient): bool
     {
-        // All authenticated users can view any patient
-        return true;
+        return $patient->user->id === $authUser->id || $authUser->role === UserRole::ADMIN;
     }
 
     /**
@@ -31,16 +31,15 @@ class PatientPolicy
     public function create(User $user): bool
     {
         // All authenticated users can create patients
-        return true;
+        return $user != null;
     }
 
     /**
      * Determine if the user can update the patient.
      */
-    public function update(User $user, Patient $patient): bool
+    public function update(User $authUser, Patient $patient): bool
     {
-        // All authenticated users can update any patient
-        return true;
+        return $patient->user->id === $authUser->id || $authUser->role === UserRole::ADMIN;
     }
 
     /**
@@ -48,8 +47,8 @@ class PatientPolicy
      */
     public function delete(User $user, Patient $patient): bool
     {
-        // All authenticated users can delete any patient
-        return true;
+        // only user could delete
+        return $user->role === UserRole::ADMIN;
     }
 
     /**

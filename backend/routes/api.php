@@ -13,11 +13,14 @@ use Illuminate\Support\Facades\Route;
 // Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
 
 // User management
-Route::apiResource('users', UserController::class)->middleware(["force.password.change", "auth:sanctum"]);
-Route::post('change_password/{user}', [UserController::class, "changePassword"]);
+
+Route::middleware(['force.password.change', "auth:sanctum"])->group(function () {
+    Route::apiResource('users', UserController::class);
+    Route::apiResource('patients', PatientController::class);
+});
+Route::post('change_password', [UserController::class, "changePassword"]);
 
 //     // Patient management
-//     Route::apiResource('patients', PatientController::class);
 
 //     // Dashboard stats
 //     Route::get('/stats', [StatsController::class, 'index']);
@@ -28,7 +31,7 @@ Route::group(["prefix" => 'auth'], function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::middleware(["auth:sanctum"])->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
-        Route::get('/user', [AuthController::class, 'user']);
+        Route::get('/me', [AuthController::class, 'me']);
     });
 
     // Route::post('auth/refresh', [AuthController::class, 'refresh']);

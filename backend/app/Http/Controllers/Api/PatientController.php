@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Patient;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
+use App\Models\User;
 use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Policies\PatientPolicy;
 
 class PatientController extends Controller
 {
@@ -20,45 +23,55 @@ class PatientController extends Controller
      */
     public function index(Request $request)
     {
-        $this->authorize('viewAny', Patient::class);
-        $query = Patient::with('user:id,name,phone,email');
-        
-        // Search by name, SSN, or phone
-        if ($request->has('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('ssn', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter by status
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Sorting
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortOrder = $request->get('sort_order', 'desc');
-        
-        $allowedSortColumns = ['name', 'ssn', 'phone', 'status', 'created_at', 'cost'];
-        if (in_array($sortBy, $allowedSortColumns)) {
-            $query->orderBy($sortBy, $sortOrder === 'asc' ? 'asc' : 'desc');
+        $authUser = auth('api')->user();
+        if ($authUser->role === UserRole::ADMIN) {
+            $patients = Patient::with('user:id,name,email,phone,role')->get();
         } else {
-            $query->latest();
+            $patients = Patient::with('user:id,name,email,phone,role')->where('user_id', $authUser->id)->get();
         }
 
-        // Pagination
-        $perPage = $request->get('per_page', 15);
-        $patients = $query->paginate($perPage);
+        if ($patients->isEmpty()) {
+            return $this->returnError("No Patients Found");
+        }
+        return $this->returnData("patients", $patients, "Patients Data");
 
-        Log::info('patients.index accessed', [
-            'user_id' => $request->user()->id,
-            'params' => $request->only(['search', 'status', 'page', 'per_page']),
-        ]);
+        // $query = Patient::with('user:id,name,phone,email');
+        // // Search by name, SSN, or phone
+        // if ($request->has('search')) {
+        //     $search = $request->search;
+        //     $query->where(function ($q) use ($search) {
+        //         $q->where('name', 'like', "%{$search}%")
+        //             ->orWhere('ssn', 'like', "%{$search}%")
+        //             ->orWhere('phone', 'like', "%{$search}%");
+        //     });
+        // }
 
-        return $this->returnData('patients', $patients, 'Patients retrieved successfully');
+        // // Filter by status
+        // if ($request->has('status')) {
+        //     $query->where('status', $request->status);
+        // }
+
+        // // Sorting
+        // $sortBy = $request->get('sort_by', 'created_at');
+        // $sortOrder = $request->get('sort_order', 'desc');
+
+        // $allowedSortColumns = ['name', 'ssn', 'phone', 'status', 'created_at', 'cost'];
+        // if (in_array($sortBy, $allowedSortColumns)) {
+        //     $query->orderBy($sortBy, $sortOrder === 'asc' ? 'asc' : 'desc');
+        // } else {
+        //     $query->latest();
+        // }
+
+        // // Pagination
+        // $perPage = $request->get('per_page', 15);
+        // $patients = $query->paginate($perPage);
+
+        // Log::info('patients.index accessed', [
+        //     'user_id' => $request->user()->id,
+        //     'params' => $request->only(['search', 'status', 'page', 'per_page']),
+        // ]);
+
+        // return $this->returnData('patients', $patients, 'Patients retrieved successfully');
     }
 
     /**
@@ -66,20 +79,16 @@ class PatientController extends Controller
      */
     public function store(StorePatientRequest $request)
     {
-        $this->authorize('create', Patient::class);
-
+        //Authorize any authenticated user to create patients
+        $authUser = auth('api')->user();
+        $this->authorizeForUser($authUser, 'create', Patient::class);
+        // Store the validated data only in array (data);
         $data = $request->validated();
-        // Enforce creator association server-side
-        $data['user_id'] = $request->user()->id;
-
+        // put the id of auth user by default for patient
+        $data['user_id'] = $authUser->id;
         $patient = Patient::create($data);
+        // load data of user that create the patient 
         $patient->load('user:id,name,phone,email');
-
-        Log::info('patients.store', [
-            'user_id' => $request->user()->id,
-            'patient_id' => $patient->id,
-        ]);
-
         return $this->returnData('patient', $patient, 'Patient created successfully', 201);
     }
 
@@ -88,37 +97,22 @@ class PatientController extends Controller
      */
     public function show(Patient $patient)
     {
-        $this->authorize('view', $patient);
-
+        $authUser = auth('api')->user();
+        $this->authorizeForUser($authUser, 'view', $patient);
         $patient->load('user:id,name,phone,email');
-
-        Log::info('patients.show accessed', [
-            'user_id' => request()->user()->id,
-            'patient_id' => $patient->id,
-        ]);
-
         return $this->returnData('patient', $patient, 'Patient retrieved successfully');
     }
-
     /**
      * Update the specified patient
      */
     public function update(UpdatePatientRequest $request, Patient $patient)
     {
         $this->authorize('update', $patient);
-
         $data = $request->validated();
-        // Prevent changing creator
-        unset($data['user_id']);
-
         $patient->update($data);
         $patient->load('user:id,name,phone,email');
 
-        Log::info('patients.update', [
-            'user_id' => $request->user()->id,
-            'patient_id' => $patient->id,
-            'payload' => $data,
-        ]);
+
 
         return $this->returnData('patient', $patient, 'Patient updated successfully');
     }
@@ -129,14 +123,7 @@ class PatientController extends Controller
     public function destroy(Request $request, Patient $patient)
     {
         $this->authorize('delete', $patient);
-
         $patient->delete();
-
-        Log::info('patients.destroy', [
-            'user_id' => $request->user()->id,
-            'patient_id' => $patient->id,
-        ]);
-
         return $this->returnSuccess('Patient deleted successfully');
     }
 }

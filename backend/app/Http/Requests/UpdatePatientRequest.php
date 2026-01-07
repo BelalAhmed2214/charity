@@ -23,7 +23,6 @@ class UpdatePatientRequest extends FormRequest
         $patientId = $this->route('patient')->id;
 
         return [
-            'user_id' => ['prohibited'],
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'ssn' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('patients', 'ssn')->ignore($patientId)],
             'age' => ['nullable', 'integer', 'min:0', 'max:150'],

@@ -78,17 +78,21 @@ class UserController extends Controller
         $user->update($request->validated());
         return $this->returnData("user", $user, "User updated Successfully");
     }
-    public function changePassword(Request $request, User $user)
+    public function changePassword(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = auth('api')->user();
         $validated = $request->validate([
             'old_password' => ['required', 'string', 'min:8'],
             'new_password' =>  ['required', 'string', 'min:8']
         ]);
+
         if (!Hash::check($validated['old_password'], $user->password)) {
             return $this->returnError("Old Password is Incorrect", Response::HTTP_UNAUTHORIZED);
         }
         $user->must_change_password = false;
-        $user->password = $validated['new_password'];
+        $user->password = Hash::make($validated['new_password']);
+        $user->save();
         return $this->returnSuccess("Password Updated Successfully", Response::HTTP_OK);
     }
     /**

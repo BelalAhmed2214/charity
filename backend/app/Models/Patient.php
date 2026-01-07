@@ -22,6 +22,11 @@ class Patient extends Model
         'solution',
         'cost',
     ];
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+
+    ];
     public function user()
     {
         return $this->belongsTo(User::class);
