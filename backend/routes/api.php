@@ -34,5 +34,4 @@ Route::group(["prefix" => 'auth'], function () {
         Route::get('/me', [AuthController::class, 'me']);
     });
 
-    // Route::post('auth/refresh', [AuthController::class, 'refresh']);
 });
