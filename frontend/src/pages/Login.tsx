@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useNavigate } from "react-router-dom";
 import { ApiErrorAlert } from "@/components/ApiErrorAlert";
 import { type ApiError } from "@/types/api";
 import { useTranslation } from "react-i18next";
@@ -24,7 +23,6 @@ import { useTranslation } from "react-i18next";
 
 export default function Login() {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
 	const { login } = useAuth();
 	const [error, setError] = useState<ApiError | null>(null);
 
@@ -94,13 +92,6 @@ export default function Login() {
 					<CardFooter className="flex flex-col gap-3">
 						<Button type="submit" className="w-full" disabled={isSubmitting}>
 							{isSubmitting ? t("auth.loggingIn") : t("auth.loginButton")}
-						</Button>
-						<Button
-							type="button"
-							variant="outline"
-							className="w-full"
-							onClick={() => navigate("/register")}>
-							{t("auth.noAccount")}
 						</Button>
 					</CardFooter>
 				</form>

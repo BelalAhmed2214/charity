@@ -15,17 +15,18 @@ export interface PatientFilters {
 export const patientsApi = {
   /**
    * Get all patients with optional filtering and pagination
+   * Note: Backend currently returns a simple array (filtering/pagination commented out)
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getAll: async (filters: PatientFilters = {}) => {
-    const params = new URLSearchParams();
-    if (filters.page) params.append('page', filters.page.toString());
-    if (filters.per_page) params.append('per_page', filters.per_page.toString());
-    if (filters.search) params.append('search', filters.search);
-    if (filters.status) params.append('status', filters.status);
-    if (filters.sort_by) params.append('sort_by', filters.sort_by);
-    if (filters.sort_order) params.append('sort_order', filters.sort_order);
-
-    const response = await axios.get<ApiResponse & { patients: PaginatedResponse<Patient> }>(`${BASE_URL}?${params.toString()}`);
+    const params = {
+      page: filters.page,
+      per_page: filters.per_page,
+      search: filters.search,
+      status: filters.status,
+      direction: filters.sort_order, // Backend expects 'direction', frontend uses 'sort_order'
+    };
+    const response = await axios.get<ApiResponse & { patients: PaginatedResponse<Patient> }>(BASE_URL, { params });
     return response.data;
   },
 

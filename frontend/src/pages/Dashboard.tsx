@@ -43,6 +43,11 @@ export default function Dashboard() {
 					<Button variant="outline" onClick={() => navigate("/patients")}>
 						{t("common.patients")}
 					</Button>
+					{user?.role === "admin" && (
+						<Button variant="outline" onClick={() => navigate("/users")}>
+							{t("common.users")}
+						</Button>
+					)}
 					<Button variant="outline" onClick={() => navigate("/profile")}>
 						{t("common.profile")}
 					</Button>

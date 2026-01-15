@@ -5,12 +5,9 @@ export interface LoginRequest {
 	password: string;
 }
 
-export interface RegisterRequest {
-	name: string;
-	phone: string;
-	email?: string;
-	password: string;
-	password_confirmation: string;
+export interface ChangePasswordRequest {
+	old_password: string;
+	new_password: string;
 }
 
 export interface AuthResponse {
@@ -19,6 +16,8 @@ export interface AuthResponse {
 		name: string;
 		phone: string;
 		email?: string;
+		role: "admin" | "user" | "editor";
+		must_change_password: boolean;
 		created_at: string;
 		updated_at: string;
 	};
@@ -31,39 +30,31 @@ export interface UserResponse {
 	name: string;
 	phone: string;
 	email?: string;
+	role: "admin" | "user" | "editor";
+	must_change_password: boolean;
 	created_at: string;
 	updated_at: string;
 }
 
 export const authAPI = {
-	register: async (data: RegisterRequest): Promise<AuthResponse> => {
-		const response = await api.post("/register", data);
-		// ResponseTrait wraps data in { result, message, status, data: {...} }
-		return response.data.data;
-	},
-
 	login: async (data: LoginRequest): Promise<AuthResponse> => {
-		const response = await api.post("/login", data);
-		// ResponseTrait wraps data in { result, message, status, data: {...} }
+		const response = await api.post("/auth/login", data);
 		return response.data.data;
 	},
 
 	logout: async (): Promise<{ message: string }> => {
-		const response = await api.post("/logout");
-		// ResponseTrait returns { result, message, status, data: [] }
+		const response = await api.post("/auth/logout");
 		return { message: response.data.message };
 	},
 
-	getUser: async (): Promise<UserResponse> => {
-		const response = await api.get("/user");
-		// ResponseTrait wraps data in { result, message, status, user: {...} }
+	getMe: async (): Promise<UserResponse> => {
+		const response = await api.get("/auth/me");
 		return response.data.user;
 	},
 
-	refreshToken: async (): Promise<{ token: string; token_type: string }> => {
-		const response = await api.post("/refresh");
-		// ResponseTrait wraps data in { result, message, status, data: {...} }
-		return response.data.data;
+	changePassword: async (data: ChangePasswordRequest): Promise<{ message: string }> => {
+		const response = await api.post("/change_password", data);
+		return { message: response.data.message };
 	},
 };
 

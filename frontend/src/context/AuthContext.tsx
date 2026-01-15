@@ -14,18 +14,17 @@ interface AuthContextType {
 	token: string | null;
 	isLoading: boolean;
 	isAuthenticated: boolean;
+	role: "admin" | "user" | "editor" | null;
+	needsPasswordChange: boolean;
 	login: (phone: string, password: string) => Promise<void>;
-	register: (
-		name: string,
-		phone: string,
-		password: string,
-		email?: string
-	) => Promise<void>;
 	logout: () => Promise<void>;
-	refreshToken: () => Promise<void>;
+	changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Helper removed as backend now returns lowercase roles
+
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 	children,
@@ -35,6 +34,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 		localStorage.getItem("auth_token")
 	);
 	const [isLoading, setIsLoading] = useState(true);
+	const [role, setRole] = useState<"admin" | "user" | "editor" | null>(null);
+	const [needsPasswordChange, setNeedsPasswordChange] = useState(false);
 	const navigate = useNavigate();
 
 	// Set authorization header when token changes
@@ -53,12 +54,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 		const checkAuth = async () => {
 			if (token) {
 				try {
-					const userData = await authAPI.getUser();
-					setUser(userData);
+					const userData = await authAPI.getMe();
+					const normalizedRole = userData.role as "admin" | "user" | "editor";
+					setUser({ ...userData, role: normalizedRole });
+					setRole(normalizedRole);
+					setNeedsPasswordChange(userData.must_change_password || false);
 				} catch (error) {
 					console.error("Failed to fetch user:", error);
 					setToken(null);
 					setUser(null);
+					setRole(null);
 				}
 			}
 			setIsLoading(false);
@@ -70,34 +75,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 	const login = async (phone: string, password: string) => {
 		try {
 			const response = await authAPI.login({ phone, password });
+			const normalizedRole = response.user.role as "admin" | "user" | "editor";
 			setToken(response.token);
-			setUser(response.user);
-			navigate("/dashboard");
+			setUser({ ...response.user, role: normalizedRole });
+			setRole(normalizedRole);
+			setNeedsPasswordChange(response.user.must_change_password || false);
+			
+			if (response.user.must_change_password) {
+				navigate("/change-password");
+			} else {
+				navigate("/dashboard");
+			}
 		} catch (error) {
 			console.error("Login failed:", error);
-			throw error;
-		}
-	};
-
-	const register = async (
-		name: string,
-		phone: string,
-		password: string,
-		email?: string
-	) => {
-		try {
-			const response = await authAPI.register({
-				name,
-				phone,
-				email,
-				password,
-				password_confirmation: password,
-			});
-			setToken(response.token);
-			setUser(response.user);
-			navigate("/dashboard");
-		} catch (error) {
-			console.error("Registration failed:", error);
 			throw error;
 		}
 	};
@@ -107,25 +97,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 			await authAPI.logout();
 			setToken(null);
 			setUser(null);
+			setRole(null);
+			setNeedsPasswordChange(false);
 			navigate("/login");
 		} catch (error) {
 			console.error("Logout failed:", error);
 			// Still clear local state even if API call fails
 			setToken(null);
 			setUser(null);
+			setRole(null);
+			setNeedsPasswordChange(false);
 			navigate("/login");
 		}
 	};
 
-	const refreshToken = async () => {
+	const changePassword = async (oldPassword: string, newPassword: string) => {
 		try {
-			const response = await authAPI.refreshToken();
-			setToken(response.token);
+			await authAPI.changePassword({
+				old_password: oldPassword,
+				new_password: newPassword,
+			});
+			setNeedsPasswordChange(false);
+			navigate("/dashboard");
 		} catch (error) {
-			console.error("Token refresh failed:", error);
-			setToken(null);
-			setUser(null);
-			navigate("/login");
+			console.error("Password change failed:", error);
+			throw error;
 		}
 	};
 
@@ -136,10 +132,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 				token,
 				isLoading,
 				isAuthenticated: !!token && !!user,
+				role,
+				needsPasswordChange,
 				login,
-				register,
 				logout,
-				refreshToken,
+				changePassword,
 			}}>
 			{children}
 		</AuthContext.Provider>

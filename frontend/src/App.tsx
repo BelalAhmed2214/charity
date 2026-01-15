@@ -11,12 +11,13 @@ import { LanguageProvider } from "@/context/LanguageContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Login from "@/pages/Login";
-import Register from "@/pages/Register";
+import ChangePassword from "@/pages/ChangePassword";
 import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
 import Patients from "@/pages/Patients";
 import PatientDetails from "@/pages/PatientDetails";
-import ProtectedRoute from "./components/ProtectedRoute";
+import Users from "@/pages/Users";
+import ProtectedRoute, { AdminRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -34,44 +35,59 @@ function App() {
 					<Router>
 						<AuthProvider>
 							<Routes>
-							<Route path="/login" element={<Login />} />
-							<Route path="/register" element={<Register />} />
-							<Route
-								path="/dashboard"
-								element={
-									<ProtectedRoute>
-										<Dashboard />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path="/profile"
-								element={
-									<ProtectedRoute>
-										<Profile />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path="/patients"
-								element={
-									<ProtectedRoute>
-										<Patients />
-									</ProtectedRoute>
-								}
-							/>
-							<Route
-								path="/patients/:id"
-								element={
-									<ProtectedRoute>
-										<PatientDetails />
-									</ProtectedRoute>
-								}
-							/>
-							<Route path="/" element={<Navigate to="/login" replace />} />
-						</Routes>
-					</AuthProvider>
-				</Router>
+								<Route path="/login" element={<Login />} />
+								<Route
+									path="/change-password"
+									element={
+										<ProtectedRoute>
+											<ChangePassword />
+										</ProtectedRoute>
+									}
+								/>
+								<Route
+									path="/dashboard"
+									element={
+										<ProtectedRoute>
+											<Dashboard />
+										</ProtectedRoute>
+									}
+								/>
+								<Route
+									path="/profile"
+									element={
+										<ProtectedRoute>
+											<Profile />
+										</ProtectedRoute>
+									}
+								/>
+								<Route
+									path="/patients"
+									element={
+										<ProtectedRoute>
+											<Patients />
+										</ProtectedRoute>
+									}
+								/>
+								<Route
+									path="/patients/:id"
+									element={
+										<ProtectedRoute>
+											<PatientDetails />
+										</ProtectedRoute>
+									}
+								/>
+								<Route
+									path="/users"
+									element={
+										<AdminRoute>
+											<Users />
+										</AdminRoute>
+									}
+								/>
+								<Route path="/" element={<Navigate to="/login" replace />} />
+							</Routes>
+						</AuthProvider>
+					</Router>
 			</ErrorBoundary>
 		</QueryClientProvider>
 		</LanguageProvider>
