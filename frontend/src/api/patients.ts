@@ -24,6 +24,7 @@ export const patientsApi = {
       per_page: filters.per_page,
       search: filters.search,
       status: filters.status,
+      sort_by: filters.sort_by,
       direction: filters.sort_order, // Backend expects 'direction', frontend uses 'sort_order'
     };
     const response = await axios.get<ApiResponse & { patients: PaginatedResponse<Patient> }>(BASE_URL, { params });
