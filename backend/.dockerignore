@@ -1,0 +1,54 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE and Editor
+.idea
+.vscode
+.fleet
+.nova
+.zed
+*.swp
+*.swo
+.phpactor.json
+
+# Dependencies (will be installed in Docker)
+/vendor
+/node_modules
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Testing
+/tests
+phpunit.xml
+.phpunit.result.cache
+.phpunit.cache
+
+# Development files
+docker-compose*.yml
+Homestead.*
+.editorconfig
+
+# Storage (will be created in container)
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+
+# Build artifacts
+/public/build
+/public/hot
+
+# Documentation
+README.md
+*.md
+!docker/*.md
+
+# Misc
+.DS_Store
+Thumbs.db
+*.log
