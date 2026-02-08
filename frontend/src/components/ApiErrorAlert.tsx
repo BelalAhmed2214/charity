@@ -44,7 +44,21 @@ export function ApiErrorAlert({
 						</Button>
 					)}
 				</div>
-				<AlertDescription className="mt-2">{error.message}</AlertDescription>
+				<AlertDescription className="mt-2 text-sm">
+					{error.message}
+					{error.errors && Object.keys(error.errors).length > 0 && (
+						<ul className="mt-2 list-disc list-inside space-y-1 text-xs opacity-90">
+							{Object.entries(error.errors).map(([field, messages]) => (
+								<li key={field}>
+									<span className="font-semibold capitalize">
+										{field.replace("_", " ")}:
+									</span>{" "}
+									{Array.isArray(messages) ? messages[0] : messages}
+								</li>
+							))}
+						</ul>
+					)}
+				</AlertDescription>
 			</div>
 		</Alert>
 	);

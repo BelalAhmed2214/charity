@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import usersAPI, { type User, type CreateUserRequest } from "@/api/users";
 import { useAuth } from "@/context/AuthContext";
 import { Trash2, Edit2, Plus } from "lucide-react";
+import { ApiErrorAlert } from "@/components/ApiErrorAlert";
 
 export default function Users() {
 	const { t } = useTranslation();
@@ -233,8 +234,8 @@ export default function Users() {
 										: t("common.addUser")}
 								</h2>
 								<form onSubmit={handleSubmit} className="space-y-4">
-									<div>
-										<label className="block text-sm font-medium mb-1">
+									<div className="space-y-1">
+										<label className="block text-sm font-medium">
 											{t("common.name")}
 										</label>
 										<input
@@ -247,16 +248,17 @@ export default function Users() {
 													name: e.target.value,
 												})
 											}
-											className="w-full px-3 py-2 border rounded-md"
+											className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
 										/>
 									</div>
-									<div>
-										<label className="block text-sm font-medium mb-1">
+									<div className="space-y-1">
+										<label className="block text-sm font-medium">
 											{t("common.phone")}
 										</label>
 										<input
 											type="tel"
 											required
+											placeholder="01012345678"
 											value={formData.phone}
 											onChange={(e) =>
 												setFormData({
@@ -264,11 +266,14 @@ export default function Users() {
 													phone: e.target.value,
 												})
 											}
-											className="w-full px-3 py-2 border rounded-md"
+											className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
 										/>
+										<p className="text-[10px] text-muted-foreground">
+											Egyptian mobile format (01x xxxxxxxx)
+										</p>
 									</div>
-									<div>
-										<label className="block text-sm font-medium mb-1">
+									<div className="space-y-1">
+										<label className="block text-sm font-medium">
 											{t("common.email")}
 										</label>
 										<input
@@ -280,17 +285,18 @@ export default function Users() {
 													email: e.target.value,
 												})
 											}
-											className="w-full px-3 py-2 border rounded-md"
+											className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
 										/>
 									</div>
 									{!editingUser && (
-										<div>
-											<label className="block text-sm font-medium mb-1">
+										<div className="space-y-1">
+											<label className="block text-sm font-medium">
 												{t("auth.passwordLabel")}
 											</label>
 											<input
 												type="password"
 												required={!editingUser}
+												minLength={8}
 												value={formData.password}
 												onChange={(e) =>
 													setFormData({
@@ -298,12 +304,15 @@ export default function Users() {
 														password: e.target.value,
 													})
 												}
-												className="w-full px-3 py-2 border rounded-md"
+												className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
 											/>
+											<p className="text-[10px] text-muted-foreground">
+												Min. 8 characters
+											</p>
 										</div>
 									)}
-									<div>
-										<label className="block text-sm font-medium mb-1">
+									<div className="space-y-1">
+										<label className="block text-sm font-medium">
 											{t("common.role")}
 										</label>
 										<select
@@ -317,18 +326,26 @@ export default function Users() {
 														| "editor",
 												})
 											}
-											className="w-full px-3 py-2 border rounded-md"
+											className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 outline-none"
 										>
 											<option value="user">{t("common.user")}</option>
 											<option value="editor">{t("common.editor")}</option>
 											<option value="admin">{t("common.admin")}</option>
 										</select>
 									</div>
+									
+									{(createMutation.error || updateMutation.error) && (
+										<ApiErrorAlert 
+											error={(createMutation.error || updateMutation.error) as any} 
+											className="mt-4"
+										/>
+									)}
+
 									<div className="flex gap-2 pt-4">
 										<button
 											type="button"
 											onClick={() => setShowDialog(false)}
-											className="flex-1 px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50"
+											className="flex-1 px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50 bg-white"
 										>
 											{t("common.cancel")}
 										</button>

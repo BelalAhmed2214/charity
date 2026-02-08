@@ -23,8 +23,16 @@ class PatientFilter
             );
         }
         //Sorting
+        $sortBy = $request->get('sort_by', 'created_at');
         $direction = in_array($request->get('direction'), ['asc', 'desc']) ? $request->direction : 'desc';
-        $query->orderBy('created_at', $direction);
+
+        $allowedSortColumns = ['name', 'ssn', 'phone', 'status', 'created_at'];
+        if (in_array($sortBy, $allowedSortColumns)) {
+            $query->orderBy($sortBy, $direction);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
         return $query;
     }
 }
