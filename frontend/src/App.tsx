@@ -39,7 +39,7 @@ function App() {
 								<Route
 									path="/change-password"
 									element={
-										<ProtectedRoute>
+										<ProtectedRoute allowPasswordChange={true}>
 											<ChangePassword />
 										</ProtectedRoute>
 									}
@@ -88,8 +88,8 @@ function App() {
 							</Routes>
 						</AuthProvider>
 					</Router>
-			</ErrorBoundary>
-		</QueryClientProvider>
+				</ErrorBoundary>
+			</QueryClientProvider>
 		</LanguageProvider>
 	);
 }
