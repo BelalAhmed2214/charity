@@ -17,8 +17,6 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['force.password.change', "auth:sanctum"])->group(function () {
     Route::apiResource('users', UserController::class);
     Route::apiResource('patients', PatientController::class);
-
-    // Dashboard stats
     Route::get('/stats', [StatsController::class, 'index']);
 });
 Route::post('change_password', [UserController::class, "changePassword"]);

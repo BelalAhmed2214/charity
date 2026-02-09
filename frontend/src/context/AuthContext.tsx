@@ -23,9 +23,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Helper removed as backend now returns lowercase roles
-
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 	children,
 }) => {
@@ -55,9 +52,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 			if (token) {
 				try {
 					const userData = await authAPI.getMe();
-					const normalizedRole = userData.role as "admin" | "user" | "editor";
-					setUser({ ...userData, role: normalizedRole });
-					setRole(normalizedRole);
+					setUser(userData);
+					setRole(userData.role);
 					setNeedsPasswordChange(userData.must_change_password || false);
 				} catch (error) {
 					console.error("Failed to fetch user:", error);
@@ -75,12 +71,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 	const login = async (phone: string, password: string) => {
 		try {
 			const response = await authAPI.login({ phone, password });
-			const normalizedRole = response.user.role as "admin" | "user" | "editor";
 			setToken(response.token);
-			setUser({ ...response.user, role: normalizedRole });
-			setRole(normalizedRole);
+			setUser(response.user);
+			setRole(response.user.role);
 			setNeedsPasswordChange(response.user.must_change_password || false);
-			
+
 			if (response.user.must_change_password) {
 				navigate("/change-password");
 			} else {
